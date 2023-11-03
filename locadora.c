@@ -10,14 +10,14 @@ int tamanho_registro(){
          + sizeof(int); //cod
          + sizeof(char)*50 //tipo
          + sizeof(char)*50 //genero
-         + sizeof(int);
+         + sizeof(int); 
 }
 
 TLocadora *CriarLocadora(char *cliente , char *funcionario, int cod, char *tipo, char *genero,int emprestimo){
 
     TLocadora *locadora = (TLocadora *) malloc(sizeof(TLocadora));
 
-    if(locadora) memset(locadora, 0, sizeof(locadora)); // memset( lugar que vai guardar a copia, o que vai ser copiado, n° de bytes que recebera a copia);
+    if(locadora) memset(locadora, 0, sizeof(locadora)); // memset( lugar que vai guardar a copia, o que vai ser copiado, nï¿½ de bytes que recebera a copia);
         strcpy(locadora->cliente, cliente);
         strcpy(locadora->funcionario, funcionario); //strcpy copia uma string para outra
         locadora->cod = cod;
@@ -29,7 +29,7 @@ TLocadora *CriarLocadora(char *cliente , char *funcionario, int cod, char *tipo,
 }
 
 void salva(TLocadora *locadora, FILE *arq){
-    fwrite(locadora->cliente, sizeof(char), sizeof(locadora->cliente), arq); //fwrite(onde na memoria esta os dados, tamanho de unidade que vai salvar, total de dados que vão ser gravados, arquivo onde vai salvar).
+    fwrite(locadora->cliente, sizeof(char), sizeof(locadora->cliente), arq); //fwrite(onde na memoria esta os dados, tamanho de unidade que vai salvar, total de dados que vï¿½o ser gravados, arquivo onde vai salvar).
     fwrite(locadora->funcionario, sizeof(char), sizeof(locadora->funcionario), arq);
     fwrite(&locadora->cod, sizeof(int), 1, arq);
     fwrite(locadora->genero, sizeof(char), sizeof(locadora->genero), arq);
@@ -38,7 +38,7 @@ void salva(TLocadora *locadora, FILE *arq){
 }
 
 int tamanho_arquivo(FILE *arq){
-    fseek(arq, 0, SEEK_END); // Funçao que inicia com o ponteiro no inicio do arquivo e pula para onde passar; fseek( arquivo que vai procurar, pular numero de bytes, a partir de qual origem). SEEK_END: esta no final do arquivo, dizer numeros negativos para pular do final em sentido do inicio.
+    fseek(arq, 0, SEEK_END); // Funï¿½ao que inicia com o ponteiro no inicio do arquivo e pula para onde passar; fseek( arquivo que vai procurar, pular numero de bytes, a partir de qual origem). SEEK_END: esta no final do arquivo, dizer numeros negativos para pular do final em sentido do inicio.
     int tam = trunc(ftell(arq) / tamanho_registro());
     return tam;
 }
@@ -46,7 +46,7 @@ int tamanho_arquivo(FILE *arq){
 TLocadora *ler(FILE *arq){
      TLocadora *locadora = (TLocadora *) malloc(sizeof(TLocadora));
 
-     if (0 >= fread(&locadora->cod, sizeof(int), 1, arq)) {   //explicação?
+     if (0 >= fread(&locadora->cod, sizeof(int), 1, arq)) {   //explicaï¿½ï¿½o?
         free(locadora);
         return NULL;
     }
