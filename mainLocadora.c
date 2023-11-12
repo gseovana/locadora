@@ -5,84 +5,37 @@
 int main(){
 
     FILE *arq;
+    TCliente *cliente;
+    TFuncionario *funcionario;
+    TDvd *dvd;
 
     if ((arq = fopen("locadora.dat", "w+b")) == NULL) {
         printf("Erro ao abrir arquivo\n");
         exit(1);
     }
     else{
-
-        TLocadora *locad;
-
-        locad = CriarLocadora("Samyla", "Talia", 2,"filme", "comedeia", 0);
-        salva(locad, arq);
-
-        locad = CriarLocadora("Carol", "Alex", 3,"filme", "acao",0);
-        salva(locad, arq);
-
-        locad = CriarLocadora("Ana", "Samyla", 1,"musica", "pagode", 0);
-        salva(locad, arq);
-
-        printf("\n\nLendo itens da locadora do arquivo...\n\n");
-        rewind(arq);
-
-        while ((locad = ler(arq)) != NULL) {
-            imprime(locad);
-        }
-
-        system("pause");
-        system("cls");
+      /*  cliente = criarCliente("Talia", "09/03/2000", "12522163252", 1, "952428251");
+        salvarCliente(cliente, arq);
+        imprimeCliente(cliente);
 
 
-        printf("\n\nLendo segundo funcionario do arquivo...\n\n");
+        funcionario = criarFuncionario("Alex", "451516516465", 2, 2000);
+        salvarFuncionario(funcionario, arq);
+        imprimeFuncionario(funcionario);
 
+        dvd = criarDvd(5, "estrela", 2015, "Maria", "terror", 0);
+        salvarDvd(dvd, arq);
+        imprimeDvd(dvd);
+*/
 
-        fseek(arq, tamanho_registro(), SEEK_SET);
-        locad = ler(arq);
+    criarBaseCliente(arq, 20);
+    imprimirBaseCliente(arq);
 
-        if (locad != NULL) {
-            imprime(locad);
-        }
-
-        system("pause");
-        system("cls");
-
-        printf("\n\nAdicionando funcionario no final do arquivo...\n\n");
-
-        fseek(arq, tamanho_registro() * 5, SEEK_SET);
-        locad = CriarLocadora("Maria", "Samyla", 5,"musica", "samba", 0);
-        salva(locad, arq);
-
-        printf("\n\nLendo funcionarios do arquivo...\n\n");
-        rewind(arq);
-
-        while ((locad = ler(arq)) != NULL) {
-            imprime(locad);
-        }
-
-        system("pause");
-        system("cls");
-
-
-        printf("\n\nSobrescrevendo quarto funcionario do arquivo...\n\n");
-        fseek(arq, tamanho_registro() * 3, SEEK_SET);
-        locad = CriarLocadora("Caio", "Ana", 9 ,"musica", "sertanejo", 0);
-        salva(locad, arq);
-
-        printf("\n\nLendo funcionarios do arquivo...\n\n");
-        rewind(arq);
-
-        while ((locad = ler(arq)) != NULL) {
-            imprime(locad);
-        }
-
-        free(locad);
-
+    //funcionario = criarBaseFuncionario(arq, 10);
+    //imprimirBaseFuncionario(arq);
     }
 
 
+
+
 }
-
-
-
-
