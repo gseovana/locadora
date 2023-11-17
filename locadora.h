@@ -5,40 +5,45 @@
 #include <stdio.h>
 
 typedef struct{
-    char nomeC[50];
-    char dataNascimentoC[20];
-    char cpfC[20];
     int idC;
-    char telefoneC[10];
+    char nomeC[100];
+    char dataNascimentoC[50];
+    char cpfC[50];
+    char telefoneC[50];
 }TCliente;
 
 typedef struct{
+    int idF;
     char nomeF[50];
     char cpfF[20];
-    int idF;
     double salarioF;
 }TFuncionario;
 
 typedef struct dvd_est {
     int id_dvd;
     char nome_dvd[100];
-    int ano_lancamento;
-    char diretor[50];
     char genero[100];
     int empretimo; // 0 disponivel , 1 emprestado
 } TDvd;
 
+typedef struct{
+    int id_dvd;
+    int id_cliente;
+}TLocadora;
 
+typedef TDvd Dvds[1000];
 
 //int tamanho_registro();
 void shuffle(int *vet,int MAX,int MIN);
 
 //Cliente
-TCliente *criarCliente(char *nomeC , char *dataNascimentoC, char *cpfC, int idC, char *telefoneC);
+TCliente *criarCliente(int idC ,char *nomeC , char *dataNascimentoC, char *cpfC, char *telefoneC);
 
 void salvarCliente(TCliente *cliente, FILE *arq);
 
 TCliente *lerCliente(FILE *arq);
+
+TCliente *buscaSequencial(int chave, FILE *arq, const char *nomeArquivoLog);
 
 void imprimeCliente(TCliente *cliente);
 
@@ -47,7 +52,7 @@ void criarBaseCliente(FILE *arq, int tam);
 void imprimirBaseCliente(FILE *arq);
 
 //Funcionario
-TFuncionario *criarFuncionario(char *nomeF, char *cpfF, int idF, double salarioF);
+TFuncionario *criarFuncionario(int idF, char *nomeF, char *cpfF, double salarioF);
 
 void salvarFuncionario(TFuncionario *funcionario, FILE *arq);
 
@@ -60,7 +65,7 @@ void criarBaseFuncionario(FILE *arq, int tam);
 void imprimirBaseFuncionario(FILE *arq);
 
 //Dvd
-TDvd *criarDvd(int id_dvd, char *nome_dvd, int ano_lancamento, char *diretor, char *genero, int emprestimo);
+TDvd *criarDvd(int id_dvd, char *nome_dvd, char *genero, int emprestimo);
 
 void salvarDvd(TDvd *dvd, FILE *arq);
 
@@ -72,12 +77,28 @@ void criarBaseDvd(FILE *arq, int tam);
 
 void imprimirBaseDvd(FILE *arq);
 
-/*int tamanho_arquivo(FILE *arq);
+TDvd *buscaSequencialDvds(int chave, FILE *arq, const char *nomeArquivoLog);
 
-void imprime(TLocadora *locadora);
+//Locadora
+TLocadora *lerRegistrosLocadora(FILE *arq);
 
-void shuffle(int *vet,int MAX,int MIN);
+TLocadora *criarLocadora(int id_dvd, int id_cliente);
 
-void imprimirBase(FILE *arq); */
+void salvarLocadora(TLocadora *locadora, FILE *arqLocadora);
+
+void imprimeLocadora(TLocadora *locadora);
+
+void criarBaseLocadora(FILE *arqLocadora, int tam);
+
+void imprimirBaseLocadora(FILE *arqLocadora);
+
+//outros
+void dvdsDisponiveis(FILE *arq);
+
+void alugaDvd(FILE *arqClientes, FILE *arqDvds, FILE *arqLocadora);
+
+void imprimirDvdsAlugados(FILE *arqDvds, FILE *arqLocadora);
+
+
 
 #endif
