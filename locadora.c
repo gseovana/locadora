@@ -53,7 +53,7 @@ TCliente *lerCliente(FILE *arq){
 
 }
 
-TCliente *buscaSequencial(int chave, FILE *arq, const char *nomeArquivoLog) {
+TCliente *buscaSequencialCliente(int chave, FILE *arq, const char *nomeArquivoLog) {
     TCliente *cliente;
     int achou = 0;
     clock_t inicio, fim;
@@ -432,22 +432,26 @@ void alugaDvd(FILE *arqClientes, FILE *arqDvds, FILE *arqLocadora) {
     }
 
     printf("-------------------------------------------------------------\n");
-    printf("Digite o id do cliente que deseja alugar o DVD\n");
-    scanf("%d", &idCliente);
-
-    cliente = buscaSequencial(idCliente, arqClientes, "clientes-log.txt");
-
-    dvdsDisponiveis(arqDvds);
-
-    printf("-------------------------------------------------------------\n");
-    printf("Digite o id do DVD\n");
+    printf("Informe o ID do DVD: ");
     scanf("%d", &idDvd);
 
-    dvd = buscaSequencialDvds(idDvd, arqDvds, "buscaDvds-log.txt");
+    dvd = buscaSequencialDvds(idDvd, arqDvds, "buscaDvds-logs.txt");
+    if (dvd != NULL) {
+        if(dvd->emprestimo != 0) {
+            printf("Este dvd não está disponível para locacao.");
+        }else
+            imprimeDvd(dvd);
+    }else
+        printf("Dvd não encontrado.");
 
-    if(dvd == NULL){
-        printf("Dvd nao encontrado");
-        exit(1);
+    printf("Informe o ID do cliente: ");
+    scanf("%d", &idCliente);
+
+    cliente = buscaSequencialCliente(idCliente, arqClientes, "clientes-log.txt");
+    if (cliente != NULL) {
+        imprimeCliente(cliente);
+    }else{
+        printf("Cliente não encontrado.");
     }
         dvd->emprestimo = 1;
         fseek(arqDvds, -sizeof(TDvd), SEEK_CUR);
@@ -487,46 +491,41 @@ void imprimirDvdsAlugados(FILE *arqDvds, FILE *arqLocadora) {
     fclose(arqLocadora);
 }
 
-void excluiDvd(int chave, FILE *arqDvds) {
-        FILE *arquivoTemporario;
+int excluiDvd(int chave, FILE *arqDvds) {
+    TDvd *dvd;
+    int encontrado = 0;
 
-        // Abre o arquivo original para leitura
-        if ((arqDvds = fopen("Dvds.dat", "w+b")) == NULL) {
-            perror("Erro ao abrir o arquivo");
-            fclose(arqDvds);
-            exit(1);
-        }
-
-        // Abre um arquivo temporário para escrita
-    if ((arquivoTemporario = fopen("temporario.dat", "w+b")) == NULL) {
-            perror("Erro ao abrir o arquivo temporário.");
-            fclose(arquivoTemporario);
-            exit(1);
-        }
-
-        // Lê cada registro do arquivo original
-            TDvd *dvd;
-            while ((dvd = lerDvd(arqDvds)) != NULL) {
-
-                // Verifica se o ID do registro atual é igual ao ID para excluir
-                if (dvd->id_dvd != chave) {
-                    // Se não for, escreve o registro no arquivo temporário
-                    salvarDvd(dvd, arquivoTemporario);
-                }
-        }
-
-        // Fecha os arquivos
-        fclose(arqDvds);
-        fclose(arquivoTemporario);
-
-        // Remove o arquivo original
-        remove("Dvds.dat");
-
-        // Renomeia o arquivo temporário para o nome original
-        rename("temporario.dat", "Dvds.dat");
-
-        printf("\nDVD excluido com sucesso!");
+    // Abre o arquivo original para leitura e gravação binária
+    if ((arqDvds = fopen("Dvds.dat", "rw")) == NULL) {
+        perror("Erro ao abrir o arquivo");
+        exit(1);
     }
+
+    // Procura o registro pelo Id
+
+    while ((dvd = lerDvd(arqDvds)) != NULL) {
+        if (dvd->id_dvd == chave) {
+            encontrado = 1;
+            break;
+        }
+    }
+
+    if (encontrado) {
+        // Move o ponteiro do arquivo de volta para o início do registro
+        fseek(arqDvds, -sizeof(TDvd), SEEK_CUR);
+
+        // Preenche o registro com dados vazios (ou você pode excluir o registro de outra forma)
+         TDvd dvdVazio = {0, "", "", 0}; // Preencha com valores padrão
+        fwrite(&dvdVazio, sizeof(TDvd), 1, arqDvds);
+
+        printf("Dvd excluido com sucesso.\n");
+    } else {
+        printf("Dvd nao encontrado.\n");
+    }
+
+    fclose(arqDvds); // Fecha o arquivo
+    return 0; // Indica sucesso
+}
 
 
 
