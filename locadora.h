@@ -23,10 +23,11 @@ typedef struct dvd_est {
     int id_dvd;
     char nome_dvd[100];
     char genero[100];
-    int empretimo; // 0 disponivel , 1 emprestado
+    int emprestimo; // 0 disponivel , 1 emprestado
 } TDvd;
 
 typedef struct{
+    int id_transacao;
     int id_dvd;
     int id_cliente;
 }TLocadora;
@@ -99,6 +100,7 @@ void alugaDvd(FILE *arqClientes, FILE *arqDvds, FILE *arqLocadora);
 
 void imprimirDvdsAlugados(FILE *arqDvds, FILE *arqLocadora);
 
+void excluiDvd(int chave, FILE *arqDvds);
 
 
 #endif

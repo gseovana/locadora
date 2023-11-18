@@ -83,7 +83,7 @@ TCliente *buscaSequencial(int chave, FILE *arq, const char *nomeArquivoLog) {
     tempoGasto = ((double)(fim - inicio) * 1000) / CLOCKS_PER_SEC;
 
     // Escrevendo no arquivo de log
-    fprintf(logFile, "Busca pela chave %d: Comparações = %d, Tempo = %f milissegundos\n", chave, contComparacao, tempoGasto);
+    fprintf(logFile, "Busca pela chave %d: \nComparações = %d, Tempo = %f milissegundos\n", chave, contComparacao, tempoGasto);
     fclose(logFile);
 
     if (achou == 1) {
@@ -100,16 +100,16 @@ TCliente *buscaSequencial(int chave, FILE *arq, const char *nomeArquivoLog) {
 
 
 void imprimeCliente(TCliente *cliente){
-    printf("*******************CLIENTE***************************");
-    printf("\nID do cliente: ");
+    printf("******************* CLIENTE ***************************");
+    printf("\nID: ");
     printf("%d", cliente->idC);
-    printf("\nNome do Cliente: ");
+    printf("\nNome: ");
     printf("%s", cliente->nomeC);
-    printf("\nData de nascimento do cliente: ");
+    printf("\nData de nascimento: ");
     printf("%s", cliente->dataNascimentoC);
-    printf("\nCPF do cliente: ");
+    printf("\nCPF: ");
     printf("%s", cliente->cpfC);
-    printf("\nTelefone do cliente: ");
+    printf("\nTelefone: ");
     printf("%s", cliente->telefoneC);
     printf("\n");
 }
@@ -125,7 +125,7 @@ int vet[tam];
     shuffle(vet,tam,(tam*10)/100); // embaralhar
 
     for (int i=0;i<tam;i++){
-        cliente = criarCliente(vet[i], "Talia", "09/03/200", "15322132635","23254153");
+        cliente = criarCliente(vet[i], "Talia", "09/03/200", "153.221.326-35","(30)92325-4153");
         salvarCliente(cliente, arq);
     }
 
@@ -227,7 +227,7 @@ TDvd *criarDvd(int id_dvd, char *nome_dvd, char *genero, int emprestimo){
         dvd->id_dvd = id_dvd;
         strcpy(dvd->nome_dvd, nome_dvd);//strcpy copia uma string para outra
         strcpy(dvd->genero, genero);
-        dvd->empretimo = emprestimo;
+        dvd->emprestimo = emprestimo;
 
         return dvd;
 }
@@ -236,7 +236,7 @@ void salvarDvd(TDvd *dvd, FILE *arq){
      fwrite(&dvd->id_dvd, sizeof(int), 1, arq);
      fwrite(dvd->nome_dvd, sizeof(char), sizeof(dvd->nome_dvd), arq); //fwrite(onde na memoria esta os dados, tamanho de unidade que vai salvar, total de dados que v�o ser gravados, arquivo onde vai salvar).
      fwrite(dvd->genero, sizeof(char), sizeof(dvd->genero), arq);
-     fwrite(&dvd->empretimo, sizeof(int), 1, arq);
+     fwrite(&dvd->emprestimo, sizeof(int), 1, arq);
 }
 
 TDvd *lerDvd(FILE *arq){
@@ -248,21 +248,20 @@ TDvd *lerDvd(FILE *arq){
     }
     fread(dvd->nome_dvd, sizeof(char), sizeof(dvd->nome_dvd), arq);
     fread(dvd->genero, sizeof(char), sizeof(dvd->genero), arq);
-    fread(&dvd->empretimo, sizeof(int), 1, arq);
+    fread(&dvd->emprestimo, sizeof(int), 1, arq);
 
     return dvd;
 }
 
 void imprimeDvd(TDvd *dvd){
-    printf("********************DVD***************************");
-    printf("\nID do dvd: ");
+    printf("\nID: ");
     printf("%d", dvd->id_dvd);
-    printf("\nNome do dvd: ");
+    printf("\nNome: ");
     printf("%s", dvd->nome_dvd);
-    printf("\nGenero do dvd: ");
+    printf("\nGenero: ");
     printf("%s", dvd->genero);
     printf("\nSituacao do emprestimo: ");
-    printf("%d", dvd->empretimo);
+    printf("%d", dvd->emprestimo);
     printf("\n");
 }
 
@@ -283,14 +282,15 @@ int vet[tam];
     free(Dvd);
 }
 
-void imprimirBaseDvd(FILE *arq){
-rewind(arq);
-    TDvd *Dvd;
+void imprimirBaseDvd(FILE *out){
+    rewind(out);
+    TDvd *dvd;
 
-    while ((Dvd = lerDvd(arq)) != NULL)
-        imprimeDvd(Dvd);
+    while ((dvd = lerDvd(out)) != NULL)
+        imprimeDvd(dvd);
 
-    free(Dvd);
+    free(dvd);
+
 }
 
 TDvd *buscaSequencialDvds(int chave, FILE *arq, const char *nomeArquivoLog) {
@@ -407,7 +407,7 @@ void dvdsDisponiveis(FILE *arq){
     rewind(arq);
     while ((dvd = lerDvd(arq)) != NULL){
 
-        if(dvd->empretimo == 0 ){
+        if(dvd->emprestimo == 0 ){
             imprimeDvd(dvd);
         }
 
@@ -449,7 +449,7 @@ void alugaDvd(FILE *arqClientes, FILE *arqDvds, FILE *arqLocadora) {
         printf("Dvd nao encontrado");
         exit(1);
     }
-        dvd->empretimo = 1;
+        dvd->emprestimo = 1;
         fseek(arqDvds, -sizeof(TDvd), SEEK_CUR);
         salvarDvd(dvd , arqDvds);
 
@@ -486,6 +486,47 @@ void imprimirDvdsAlugados(FILE *arqDvds, FILE *arqLocadora) {
     }
     fclose(arqLocadora);
 }
+
+void excluiDvd(int chave, FILE *arqDvds) {
+        FILE *arquivoTemporario;
+
+        // Abre o arquivo original para leitura
+        if ((arqDvds = fopen("Dvds.dat", "w+b")) == NULL) {
+            perror("Erro ao abrir o arquivo");
+            fclose(arqDvds);
+            exit(1);
+        }
+
+        // Abre um arquivo temporário para escrita
+    if ((arquivoTemporario = fopen("temporario.dat", "w+b")) == NULL) {
+            perror("Erro ao abrir o arquivo temporário.");
+            fclose(arquivoTemporario);
+            exit(1);
+        }
+
+        // Lê cada registro do arquivo original
+            TDvd *dvd;
+            while ((dvd = lerDvd(arqDvds)) != NULL) {
+
+                // Verifica se o ID do registro atual é igual ao ID para excluir
+                if (dvd->id_dvd != chave) {
+                    // Se não for, escreve o registro no arquivo temporário
+                    salvarDvd(dvd, arquivoTemporario);
+                }
+        }
+
+        // Fecha os arquivos
+        fclose(arqDvds);
+        fclose(arquivoTemporario);
+
+        // Remove o arquivo original
+        remove("Dvds.dat");
+
+        // Renomeia o arquivo temporário para o nome original
+        rename("temporario.dat", "Dvds.dat");
+
+        printf("\nDVD excluido com sucesso!");
+    }
 
 
 
