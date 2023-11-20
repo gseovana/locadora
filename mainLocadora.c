@@ -163,7 +163,12 @@ int main() {
                 free(cliente);
                 break;
             case 7:
-                printf("\n********** A IMPLEMENTAR **********\n");
+                printf("\n********** EXCLUIR CLIENTE **********\n");
+
+                printf("Informe o codigo: ");
+                scanf("%d", &id_cliente);
+
+                excluiCliente(id_cliente, arqClientes);
                 break;
             case 8:
                 printf("\n********** IMPRIMIR BASE DE DADOS DE CLIENTES **********\n");

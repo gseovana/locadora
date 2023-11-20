@@ -137,8 +137,11 @@ void imprimirBaseCliente(FILE *arq){
 rewind(arq);
     TCliente *cliente;
 
-    while ((cliente = lerCliente(arq)) != NULL)
-        imprimeCliente(cliente);
+    while ((cliente = lerCliente(arq)) != NULL){
+        if(cliente->idC != 0)
+            imprimeCliente(cliente);
+    }
+
 
     free(cliente);
 }
@@ -255,15 +258,15 @@ TDvd *lerDvd(FILE *arq){
 }
 
 void imprimeDvd(TDvd *dvd){
-    printf("\nID: ");
-    printf("%d", dvd->id_dvd);
-    printf("\nNome: ");
-    printf("%s", dvd->nome_dvd);
-    printf("\nGenero: ");
-    printf("%s", dvd->genero);
-    printf("\nSituacao do emprestimo: ");
-    printf("%d", dvd->emprestimo);
-    printf("\n");
+        printf("\nID: ");
+        printf("%d", dvd->id_dvd);
+        printf("\nNome: ");
+        printf("%s", dvd->nome_dvd);
+        printf("\nGenero: ");
+        printf("%s", dvd->genero);
+        printf("\nSituacao do emprestimo: ");
+        printf("%d", dvd->emprestimo);
+        printf("\n");
 }
 
 void criarBaseDvd(FILE *arq, int tam){
@@ -287,9 +290,10 @@ void imprimirBaseDvd(FILE *out){
     rewind(out);
     TDvd *dvd;
 
-    while ((dvd = lerDvd(out)) != NULL)
-        imprimeDvd(dvd);
-
+    while ((dvd = lerDvd(out)) != NULL ) {
+        if (dvd->id_dvd != 0)
+            imprimeDvd(dvd);
+    }
     free(dvd);
 
 }
@@ -506,7 +510,7 @@ int excluiDvd(int chave, FILE *arqDvds) {
     int encontrado = 0;
 
     // Abre o arquivo original para leitura e gravação binária
-    if ((arqDvds = fopen("Dvds.dat", "rw")) == NULL) {
+    if ((arqDvds = fopen("Dvds.dat", "r+")) == NULL) {
         perror("Erro ao abrir o arquivo");
         exit(1);
     }
@@ -525,7 +529,12 @@ int excluiDvd(int chave, FILE *arqDvds) {
         fseek(arqDvds, -sizeof(TDvd), SEEK_CUR);
 
         // Preenche o registro com dados vazios
-        TDvd dvdVazio = {0, "", "", 0}; // Preenchendo com valores padrão
+        TDvd dvdVazio;
+        dvdVazio.id_dvd = 0;
+        strcpy(dvdVazio.nome_dvd, "");
+        strcpy(dvdVazio.genero, "");
+        dvdVazio.emprestimo = 0;
+
         fwrite(&dvdVazio, sizeof(TDvd), 1, arqDvds);
 
         printf("Dvd excluido com sucesso.\n");
@@ -581,7 +590,7 @@ int excluiCliente(int chave, FILE *arqClientes) {
     int encontrado = 0;
 
     // Abre o arquivo original para leitura e gravação binária
-    if ((arqClientes = fopen("clientes.dat", "rw")) == NULL) {
+    if ((arqClientes = fopen("clientes.dat", "r+")) == NULL) {
         perror("Erro ao abrir o arquivo");
         exit(1);
     }
@@ -600,7 +609,13 @@ int excluiCliente(int chave, FILE *arqClientes) {
         fseek(arqClientes, -sizeof(TCliente), SEEK_CUR);
 
         // Preenche o registro com dados vazios
-        TCliente clienteVazio = {0, "", "", ""}; // Preenchendo com valores padrão
+        TCliente clienteVazio;
+        clienteVazio.idC = 0;
+        strcpy(clienteVazio.nomeC, "");
+        strcpy(clienteVazio.dataNascimentoC, "");
+        strcpy(clienteVazio.cpfC, "");
+        strcpy(clienteVazio.telefoneC, "");
+
         fwrite(&cliente, sizeof(TCliente), 1, arqClientes);
 
         printf("Cliente excluido com sucesso.\n");

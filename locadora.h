@@ -100,7 +100,7 @@ void alugaDvd(FILE *arqClientes, FILE *arqDvds, FILE *arqLocadora);
 
 void imprimirDvdsAlugados(FILE *arqDvds, FILE *arqLocadora);
 
-//int excluiDvd(int chave, FILE *in);
+int excluiCliente(int chave, FILE *arqClientes);
 int excluiDvd(int chave, FILE *arqDvds);
 
 
