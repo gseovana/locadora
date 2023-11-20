@@ -27,7 +27,7 @@ typedef struct dvd_est {
 } TDvd;
 
 typedef struct{
-    int id_transacao;
+    int id_locacao;
     int id_dvd;
     int id_cliente;
 }TLocadora;
@@ -83,7 +83,7 @@ TDvd *buscaSequencialDvds(int chave, FILE *arq, const char *nomeArquivoLog);
 //Locadora
 TLocadora *lerRegistrosLocadora(FILE *arq);
 
-TLocadora *criarLocadora(int id_dvd, int id_cliente);
+TLocadora *criarLocadora(int id_locacao, int id_dvd, int id_cliente);
 
 void salvarLocadora(TLocadora *locadora, FILE *arqLocadora);
 
@@ -100,7 +100,8 @@ void alugaDvd(FILE *arqClientes, FILE *arqDvds, FILE *arqLocadora);
 
 void imprimirDvdsAlugados(FILE *arqDvds, FILE *arqLocadora);
 
-int excluiDvd(int chave, FILE *in);
+//int excluiDvd(int chave, FILE *in);
+int excluiDvd(int chave, FILE *arqDvds);
 
 
 #endif

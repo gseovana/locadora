@@ -8,6 +8,7 @@ int main() {
     TCliente *cliente;
     TFuncionario *funcionario;
     TDvd *dvd;
+    TLocadora *locacao;
 
 
     if ((arqClientes = fopen("clientes.dat", "w+b")) == NULL) {
@@ -33,12 +34,13 @@ int main() {
     criarBaseDvd(arqDvds, 10);
     criarBaseCliente(arqClientes, 3);
     criarBaseFuncionario(arqFuncionarios, 2);
+    criarBaseLocadora(arqLocadora, 10);
 
     int opcao = -1,
-    gerador_id_dvd = 1,
-    gerador_id_cliente = 1,
-    gerador_id_funcionario = 1,
-    gerador_id_locadora = 1, c;
+            gerador_id_dvd = 1,
+            gerador_id_cliente = 1,
+            gerador_id_funcionario = 1,
+            gerador_id_locadora = 1, c;
 
 
     while (opcao != 0) {
@@ -47,7 +49,7 @@ int main() {
         printf("\n1. Cadastrar DVD \n2. Buscar DVD \n3. Excluir DVD \n4. Imprimir todos os DVDs \n-----------------------------\n"
                "5. Cadastrar cliente \n6. Buscar cliente \n7. Excluir cliente \n8. Imprimir todos os clientes \n-----------------------------"
                "\n9. Cadastrar novo funcionário \n10. Imprimir todos os funcionários \n---------------------------"
-               "\n11. Nova transação\n12. Imprimir todas as transações \n---------------------------\n0. Sair\n\nEscolha uma opção: ");
+               "\n11. Nova transação\n12. Buscar transação \n13. Imprimir todas as transações \n---------------------------\n0. Sair\n\nEscolha uma opção: ");
         scanf("%d", &opcao);
         //fflush(arq);
 
@@ -61,7 +63,7 @@ int main() {
                 // Limpar o buffer, consumindo o caractere de nova linha remanescente
                 while (getchar() != '\n');
 
-                dvd->id_dvd = 10+gerador_id_dvd;
+                dvd->id_dvd = 10 + gerador_id_dvd;
                 gerador_id_dvd++;
 
                 printf("ID: %d", dvd->id_dvd);
@@ -91,7 +93,7 @@ int main() {
                 dvd = buscaSequencialDvds(id_dvd, arqDvds, "buscaDvds-log.txt");
                 if (dvd != NULL) {
                     imprimeDvd(dvd);
-                }else{
+                } else {
                     printf("DVD não encontrado.");
                 }
 
@@ -103,7 +105,7 @@ int main() {
                 printf("Informe o codigo: ");
                 scanf("%d", &id_dvd);
 
-                excluiDvd(id_dvd,  arqDvds);
+                excluiDvd(id_dvd, arqDvds);
 
                 break;
             case 4:
@@ -119,7 +121,7 @@ int main() {
                 // Limpar o buffer, consumindo o caractere de nova linha remanescente
                 while ((c = getchar()) != '\n' && c != EOF);
 
-                cliente->idC = 3+gerador_id_cliente;
+                cliente->idC = 3 + gerador_id_cliente;
                 gerador_id_cliente++;
 
                 printf("ID: %d", cliente->idC);
@@ -154,7 +156,7 @@ int main() {
                 cliente = buscaSequencialCliente(id_cliente, arqClientes, "clientes-log.txt");
                 if (cliente != NULL) {
                     imprimeCliente(cliente);
-                }else{
+                } else {
                     printf("Cliente não encontrado.");
                 }
 
@@ -175,7 +177,7 @@ int main() {
                 // Limpar o buffer, consumindo o caractere de nova linha remanescente
                 while ((c = getchar()) != '\n' && c != EOF);
 
-                funcionario->idF = 3+gerador_id_funcionario;
+                funcionario->idF = 3 + gerador_id_funcionario;
                 gerador_id_funcionario++;
 
                 printf("ID: %d", funcionario->idF);
@@ -187,7 +189,7 @@ int main() {
                 fgets(funcionario->cpfF, 20, stdin);
 
                 printf("Salario: ");
-                scanf("%d", &funcionario->salarioF);
+                scanf("%lf", &funcionario->salarioF);
 
                 salvarFuncionario(funcionario, arqFuncionarios);
                 printf("\nFuncionario salvo com sucesso!");
@@ -203,35 +205,28 @@ int main() {
                 break;
             case 11:
                 printf("\n********** CADASTRAR LOCACAO **********\n");
-                printf("Informe o ID do DVD: ");
-                scanf("%d", &id_dvd);
-
-                dvd = buscaSequencialDvds(id_dvd, arqDvds, "buscaDvds-logs.txt");
-                if (dvd != NULL) {
-                    if(dvd->emprestimo != 0) {
-                        printf("Este dvd não está disponível para locacao.");
-                    }else
-                        imprimeDvd(dvd);
-                }else{
-                    printf("Dvd não encontrado.");
-                    opcao = -1;
-                    break;
-                }
-
-                printf("Informe o ID do cliente: ");
-                scanf("%d", &id_cliente);
-
-                cliente = buscaSequencialCliente(id_cliente, arqClientes, "clientes-log.txt");
-                if (cliente != NULL) {
-                    imprimeCliente(cliente);
-                }else{
-                    printf("Cliente não encontrado.");
-                    opcao = -1;
-                    break;
-                }
 
                 alugaDvd(arqClientes, arqDvds, arqLocadora);
 
+                break;
+
+            case 12:
+                printf("*************** BUSCAR LOCAÇÃO **********************");
+                int id_locacao;
+
+                printf("\nInforme o código da locação: ");
+                scanf("%d", &id_locacao);
+
+                locacao = buscaBinariaLocacao(id_locacao, arqLocadora, 0, tamanho_arquivo(arqLocadora)-1);
+
+                if (locacao != NULL) {
+                    imprimeLocadora(locacao);
+                } else
+                    printf("Locação não encontrada.");
+                break;
+            case 13:
+                printf("\n********** IMPRIMIR TODAS AS LOCAÇÕES **********\n");
+                imprimirBaseLocadora(arqLocadora);
                 break;
         }
     }
