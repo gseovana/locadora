@@ -6,7 +6,6 @@ int main() {
 
     FILE *arqClientes, *arqDvds, *arqLocadora, *arqFuncionarios;
     TCliente *cliente;
-    TFuncionario *funcionario;
     TDvd *dvd;
     TLocadora *locacao;
 
@@ -26,37 +25,30 @@ int main() {
         exit(1);
     }
 
-    if ((arqFuncionarios = fopen("funcionarios.dat", "w+b")) == NULL) {
-        printf("Erro ao abrir arquivo\n");
-        exit(1);
-    }
 
     criarBaseDvd(arqDvds, 10);
-    criarBaseCliente(arqClientes, 3);
-    criarBaseFuncionario(arqFuncionarios, 2);
-    criarBaseLocadora(arqLocadora, 10);
+    criarBaseCliente(arqClientes, 10);
+    criarBaseLocadora(arqLocadora, arqClientes, arqDvds, 3);
+    int gerador_id_locadora = 3;
 
     int opcao = -1,
             gerador_id_dvd = 1,
-            gerador_id_cliente = 1,
-            gerador_id_funcionario = 1,
-            gerador_id_locadora = 1, c;
+            gerador_id_cliente = 1,c;
 
 
     while (opcao != 0) {
         system("clear");
-        printf("\n****************** LOCADORA TAGEO  *******************");
+        printf("\n***************************** LOCADORA TAGEO  ********************************");
         printf("\n1. Cadastrar DVD \n2. Buscar DVD \n3. Excluir DVD \n4. Imprimir todos os DVDs \n-----------------------------\n"
                "5. Cadastrar cliente \n6. Buscar cliente \n7. Excluir cliente \n8. Imprimir todos os clientes \n-----------------------------"
-               "\n9. Cadastrar novo funcionário \n10. Imprimir todos os funcionários \n---------------------------"
-               "\n11. Nova transação\n12. Buscar transação \n13. Imprimir todas as transações \n---------------------------\n0. Sair\n\nEscolha uma opção: ");
+               "\n9. Alugar DVD\n10. Buscar locacao \n11. Imprimir todas as locacoes\n12. Devolver DVD\n---------------------------\n0. Sair\n\nEscolha uma opção: ");
         scanf("%d", &opcao);
         //fflush(arq);
 
         switch (opcao) {
             case 1:
                 system("clear");
-                printf("\n********** CADASTRAR DVD **********\n");
+                printf("\n************************* CADASTRAR DVD *******************************\n");
 
                 dvd = (TDvd *) malloc(sizeof(TDvd));
 
@@ -83,7 +75,7 @@ int main() {
                 free(dvd);
                 break;
             case 2:
-                printf("\n********** BUSCAR DVD **********\n");
+                printf("\n**************************** BUSCAR DVD ******************************\n");
 
                 int id_dvd;
 
@@ -100,7 +92,7 @@ int main() {
                 free(dvd);
                 break;
             case 3:
-                printf("\n********** EXCLUIR DVD **********\n");
+                printf("\n**************************** EXCLUIR DVD ****************************\n");
 
                 printf("Informe o codigo: ");
                 scanf("%d", &id_dvd);
@@ -109,19 +101,19 @@ int main() {
 
                 break;
             case 4:
-                printf("\n********** IMPRIMIR BASE DE DADOS DE DVDs **********\n");
+                printf("\n********************** IMPRIMIR BASE DE DADOS DE DVDs ************************\n");
                 imprimirBaseDvd(arqDvds);
                 break;
             case 5:
                 system("clear");
-                printf("\n********** CADASTRAR CLIENTE **********\n");
+                printf("\n****************** CADASTRAR CLIENTE ************************\n");
 
                 cliente = (TCliente *) malloc(sizeof(TCliente));
 
                 // Limpar o buffer, consumindo o caractere de nova linha remanescente
                 while ((c = getchar()) != '\n' && c != EOF);
 
-                cliente->idC = 3 + gerador_id_cliente;
+                cliente->idC = 10 + gerador_id_cliente;
                 gerador_id_cliente++;
 
                 printf("ID: %d", cliente->idC);
@@ -146,7 +138,7 @@ int main() {
 
                 break;
             case 6:
-                printf("\n********** BUSCAR CLIENTE **********\n");
+                printf("\n******************* BUSCAR CLIENTE *******************\n");
 
                 int id_cliente;
 
@@ -163,7 +155,7 @@ int main() {
                 free(cliente);
                 break;
             case 7:
-                printf("\n********** EXCLUIR CLIENTE **********\n");
+                printf("\n**************************** EXCLUIR CLIENTE ****************************\n");
 
                 printf("Informe o codigo: ");
                 scanf("%d", &id_cliente);
@@ -171,55 +163,23 @@ int main() {
                 excluiCliente(id_cliente, arqClientes);
                 break;
             case 8:
-                printf("\n********** IMPRIMIR BASE DE DADOS DE CLIENTES **********\n");
+                printf("\n****************** IMPRIMIR BASE DE DADOS DE CLIENTES ********************\n");
                 imprimirBaseCliente(arqClientes);
                 break;
             case 9:
-                printf("\n********** CADASTRAR FUNCIONARIO **********\n");
+                printf("\n*************************** ALUGAR DVD **************************");
 
-                funcionario = (TFuncionario *) malloc(sizeof(TFuncionario));
+                gerador_id_locadora++;
+                alugaDvd(gerador_id_locadora, arqClientes, arqDvds, arqLocadora);
 
-                // Limpar o buffer, consumindo o caractere de nova linha remanescente
-                while ((c = getchar()) != '\n' && c != EOF);
-
-                funcionario->idF = 3 + gerador_id_funcionario;
-                gerador_id_funcionario++;
-
-                printf("ID: %d", funcionario->idF);
-
-                printf("\nNome: ");
-                fgets(funcionario->nomeF, 50, stdin);
-
-                printf("\nCPF: ");
-                fgets(funcionario->cpfF, 20, stdin);
-
-                printf("Salario: ");
-                scanf("%lf", &funcionario->salarioF);
-
-                salvarFuncionario(funcionario, arqFuncionarios);
-                printf("\nFuncionario salvo com sucesso!");
-                opcao = -1;
-
-                free(funcionario);
+                //imprimirDvdAlugado(arqLocadora, arqDvds, arqClientes);
 
                 break;
-
             case 10:
-                printf("\n********** IMPRIMIR BASE DE DADOS DE FUNCIONARIOS **********\n");
-                imprimirBaseFuncionario(arqFuncionarios);
-                break;
-            case 11:
-                printf("\n********** CADASTRAR LOCACAO **********\n");
-
-                alugaDvd(arqClientes, arqDvds, arqLocadora);
-
-                break;
-
-            case 12:
-                printf("*************** BUSCAR LOCAÇÃO **********************");
+                printf("*************************** BUSCAR LOCACAOO ********************************");
                 int id_locacao;
 
-                printf("\nInforme o código da locação: ");
+                printf("\nInforme o codigo da locacao: ");
                 scanf("%d", &id_locacao);
 
                 locacao = buscaBinariaLocacao(id_locacao, arqLocadora, 0, tamanho_arquivo(arqLocadora)-1);
@@ -227,11 +187,15 @@ int main() {
                 if (locacao != NULL) {
                     imprimeLocadora(locacao);
                 } else
-                    printf("Locação não encontrada.");
+                    printf("Locacao não encontrada.");
                 break;
-            case 13:
-                printf("\n********** IMPRIMIR TODAS AS LOCAÇÕES **********\n");
+            case 11:
+                printf("\n********************** IMPRIMIR TODAS AS LOCACOES *************************\n");
                 imprimirBaseLocadora(arqLocadora);
+                break;
+            case 12:
+                printf("\n********************** DEVOLVER DVD *************************\n");
+                devolverDvd(arqDvds);
                 break;
         }
     }

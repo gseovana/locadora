@@ -12,13 +12,6 @@ typedef struct{
     char telefoneC[50];
 }TCliente;
 
-typedef struct{
-    int idF;
-    char nomeF[50];
-    char cpfF[20];
-    double salarioF;
-}TFuncionario;
-
 typedef struct dvd_est {
     int id_dvd;
     char nome_dvd[100];
@@ -28,11 +21,10 @@ typedef struct dvd_est {
 
 typedef struct{
     int id_locacao;
-    int id_dvd;
-    int id_cliente;
+    TDvd dvdL;
+    TCliente clienteL;
 }TLocadora;
 
-typedef TDvd Dvds[1000];
 
 //int tamanho_registro();
 void shuffle(int *vet,int MAX,int MIN);
@@ -44,7 +36,7 @@ void salvarCliente(TCliente *cliente, FILE *arq);
 
 TCliente *lerCliente(FILE *arq);
 
-TCliente *buscaSequencial(int chave, FILE *arq, const char *nomeArquivoLog);
+TCliente *buscaSequencialCliente(int chave, FILE *arq, const char *nomeArquivoLog);
 
 void imprimeCliente(TCliente *cliente);
 
@@ -52,18 +44,6 @@ void criarBaseCliente(FILE *arq, int tam);
 
 void imprimirBaseCliente(FILE *arq);
 
-//Funcionario
-TFuncionario *criarFuncionario(int idF, char *nomeF, char *cpfF, double salarioF);
-
-void salvarFuncionario(TFuncionario *funcionario, FILE *arq);
-
-TFuncionario *lerFuncionario(FILE *arq);
-
-void imprimeFuncionario(TFuncionario *funcionario);
-
-void criarBaseFuncionario(FILE *arq, int tam);
-
-void imprimirBaseFuncionario(FILE *arq);
 
 //Dvd
 TDvd *criarDvd(int id_dvd, char *nome_dvd, char *genero, int emprestimo);
@@ -83,25 +63,26 @@ TDvd *buscaSequencialDvds(int chave, FILE *arq, const char *nomeArquivoLog);
 //Locadora
 TLocadora *lerRegistrosLocadora(FILE *arq);
 
-TLocadora *criarLocadora(int id_locacao, int id_dvd, int id_cliente);
+TLocadora *criarLocadora(int id_locacao, TDvd dvd, TCliente cliente);
 
 void salvarLocadora(TLocadora *locadora, FILE *arqLocadora);
 
 void imprimeLocadora(TLocadora *locadora);
 
-void criarBaseLocadora(FILE *arqLocadora, int tam);
-
+void criarBaseLocadora(FILE *arqLocadora, FILE *arqCliente, FILE *arqDvd, int tam);
 void imprimirBaseLocadora(FILE *arqLocadora);
+
 
 //outros
 void dvdsDisponiveis(FILE *arq);
 
-void alugaDvd(FILE *arqClientes, FILE *arqDvds, FILE *arqLocadora);
-
-void imprimirDvdsAlugados(FILE *arqDvds, FILE *arqLocadora);
+void alugaDvd(int gerador_id_locadora, FILE *arqClientes, FILE *arqDvds, FILE *arqLocadora);
+void imprimirDvdAlugado(FILE *arq, FILE *arqD, FILE *arqC);
+void devolverDvd(FILE *arqDvds);
 
 int excluiCliente(int chave, FILE *arqClientes);
-int excluiDvd(int chave, FILE *arqDvds);
 
+int excluiDvd(int chave, FILE *arqDvds);
+int tamanhoRegistroLocadora();
 
 #endif
