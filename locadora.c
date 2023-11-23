@@ -57,9 +57,10 @@ TCliente *lerCliente(FILE *arq){
 TCliente *buscaSequencialCliente(int chave, FILE *arq, const char *nomeArquivoLog) {
     TCliente *cliente;
     int achou = 0;
-    clock_t inicio, fim;
+    struct timespec inicioTime, fimTime;
     double tempoGasto;
-    int contComparacao = 0;
+    clock_t inicioClock, fimClock;
+    int contComparacao=0;
 
     FILE *logFile = fopen(nomeArquivoLog, "a"); // Abre o arquivo de log em modo de acréscimo
     if (logFile == NULL) {
@@ -67,7 +68,7 @@ TCliente *buscaSequencialCliente(int chave, FILE *arq, const char *nomeArquivoLo
         return NULL;
     }
 
-    inicio = clock();
+    clock_gettime(CLOCK_MONOTONIC, &inicioTime);
     rewind(arq);
     while ((cliente = lerCliente(arq)) != NULL) {
         contComparacao++;
@@ -79,9 +80,9 @@ TCliente *buscaSequencialCliente(int chave, FILE *arq, const char *nomeArquivoLo
 
         free(cliente); // Libera o cliente se não for o procurado
     }
-    fim = clock();
-
-    tempoGasto = ((double)(fim - inicio) * 1000) / CLOCKS_PER_SEC;
+    clock_gettime(CLOCK_MONOTONIC, &fimTime);
+    tempoGasto = (fimTime.tv_sec - inicioTime.tv_sec) * 1000.0; // seconds to milliseconds
+    tempoGasto += (fimTime.tv_nsec - inicioTime.tv_nsec) / 1000000.0; // nanoseconds to milliseconds
 
     // Escrevendo no arquivo de log
     fprintf(logFile, "Busca pela chave %d: \nComparações = %d, Tempo = %f milissegundos\n", chave, contComparacao, tempoGasto);
@@ -93,7 +94,7 @@ TCliente *buscaSequencialCliente(int chave, FILE *arq, const char *nomeArquivoLo
         printf("Cliente não encontrado\n");
     }
 
-    printf("Tempo gasto: %f milissegundos\n", tempoGasto);
+    //printf("Tempo gasto: %f milissegundos\n", tempoGasto);
 
     return NULL;
 }
@@ -226,8 +227,9 @@ void imprimirBaseDvd(FILE *out){
 TDvd *buscaSequencialDvds(int chave, FILE *arq, const char *nomeArquivoLog) {
     TDvd *dvd;
     int achou = 0;
-    clock_t inicio, fim;
+    struct timespec inicioTime, fimTime;
     double tempoGasto;
+    clock_t inicioClock, fimClock;
     int contComparacao = 0;
 
     FILE *logFile = fopen(nomeArquivoLog, "a");
@@ -236,7 +238,7 @@ TDvd *buscaSequencialDvds(int chave, FILE *arq, const char *nomeArquivoLog) {
         return NULL;
     }
 
-    inicio = clock();
+    clock_gettime(CLOCK_MONOTONIC, &inicioTime);
     rewind(arq);
     while ((dvd = lerDvd(arq)) != NULL) {
         contComparacao++;
@@ -248,12 +250,16 @@ TDvd *buscaSequencialDvds(int chave, FILE *arq, const char *nomeArquivoLog) {
 
         free(dvd);
     }
-    fim = clock();
+    clock_gettime(CLOCK_MONOTONIC, &fimTime);
 
-    tempoGasto = ((double)(fim - inicio) * 1000) / CLOCKS_PER_SEC;
+    tempoGasto = (fimTime.tv_sec - inicioTime.tv_sec) * 1000.0; // seconds to milliseconds
+    tempoGasto += (fimTime.tv_nsec - inicioTime.tv_nsec) / 1000000.0; // nanoseconds to milliseconds
 
     // Escrevendo no arquivo de log
-    fprintf(logFile, "Busca pelo DVD com chave %d: Comparações = %d, Tempo = %f milissegundos\n", chave, contComparacao, tempoGasto);
+    if (fprintf(logFile, "Busca pelo DVD com chave %d: Comparações = %d, Tempo = %f milissegundos\n", chave, contComparacao, tempoGasto) < 0) {
+        printf("Erro ao escrever no arquivo de log\n");
+    }
+
     fclose(logFile);
 
     if (achou == 1) {
@@ -313,10 +319,10 @@ void criarBaseLocadora(FILE *arqLocadora, FILE *arqCliente, FILE *arqDvd, int ta
 
     for (int i = 0; i < tam; i++) {
         //faz a busca sequencial de alguns dvds para criar a base de locacao
-        dvd = buscaSequencialDvds(i+2, arqDvd, "Dvds-log.txt");
+        dvd = buscaSequencialDvds(i+2, arqDvd, "buscaDvds-log.txt");
         dvd->emprestimo = 1;
         //faz a busca sequencial de alguns clientes para criar a base de locacao
-        cliente = buscaSequencialCliente(1+3, arqCliente, "clientes-log.txt");
+        cliente = buscaSequencialCliente(i+3, arqCliente, "clientes-log.txt");
 
         if(dvd  != NULL && cliente != NULL) {
             locadora = criarLocadora(i+1, *dvd, *cliente);
@@ -410,6 +416,7 @@ void alugaDvd(int gerador_id_locadora, FILE *arqClientes, FILE *arqDvds, FILE *a
 
         locadora = criarLocadora(gerador_id_locadora, *dvd, *cliente);
         salvarLocadora(locadora, arqLocadora);
+        gerador_id_locadora++;
 
         printf("\nDvd alugado com sucesso!\n");
 
@@ -448,19 +455,19 @@ void imprimirDvdAlugado(FILE *arq, FILE *arqD, FILE *arqC){
     free(dvd);
 }
 
-int excluiDvd(int chave, FILE *arqDvds) {
+int excluiDvd(int chave, FILE *arquivoD) {
     TDvd *dvd;
     int encontrado = 0;
 
     // Abre o arquivo original para leitura e gravação binária
-    if ((arqDvds = fopen("Dvds.dat", "r+")) == NULL) {
+    if ((arquivoD = fopen("Dvds.dat", "r+")) == NULL) {
         perror("Erro ao abrir o arquivo");
         exit(1);
     }
 
     // Procura o registro pelo Id
 
-    while ((dvd = lerDvd(arqDvds)) != NULL) {
+    while ((dvd = lerDvd(arquivoD)) != NULL) {
         if (dvd->id_dvd == chave) {
             encontrado = 1;
             break;
@@ -469,7 +476,7 @@ int excluiDvd(int chave, FILE *arqDvds) {
 
     if (encontrado) {
         // Move o ponteiro do arquivo de volta para o início do registro
-        fseek(arqDvds, -sizeof(TDvd), SEEK_CUR);
+        fseek(arquivoD, -sizeof(TDvd), SEEK_CUR);
 
         // Preenche o registro com dados vazios
         TDvd dvdVazio;
@@ -478,14 +485,14 @@ int excluiDvd(int chave, FILE *arqDvds) {
         strcpy(dvdVazio.genero, "");
         dvdVazio.emprestimo = 0;
 
-        fwrite(&dvdVazio, sizeof(TDvd), 1, arqDvds);
+        fwrite(&dvdVazio, sizeof(TDvd), 1, arquivoD);
 
         printf("Dvd excluido com sucesso.\n");
     } else {
         printf("Dvd nao encontrado.\n");
     }
 
-    fclose(arqDvds); // Fecha o arquivo
+    fclose(arquivoD); // Fecha o arquivo
     return 0; // Indica sucesso
 }
 
@@ -501,13 +508,26 @@ int tamanho_arquivo(FILE *arq) {
     return tam;
 }
 
-TLocadora *buscaBinariaLocacao(int chave, FILE *in, int inicio, int fim) {
+TLocadora *buscaBinariaLocacao(int chave, FILE *in, int inicio, int fim, const char *nomeArquivoLog) {
 
     TLocadora *locadora = NULL;
     int cod = -1;
+    int contComparacao = 0;
 
+    struct timespec inicioTime, fimTime;
+    double tempoGasto;
+    clock_t inicioClock, fimClock;
+
+    FILE *logFile = fopen(nomeArquivoLog, "a");
+    if (logFile == NULL) {
+        printf("Erro ao abrir arquivo de log\n");
+        return NULL;
+    }
+
+    clock_gettime(CLOCK_MONOTONIC, &inicioTime);
     while (inicio <= fim && cod != chave) {
 
+        contComparacao++;
         int meio = trunc((inicio + fim) / 2);
         //printf("Inicio: %d; Fim: %d; Meio: %d\n", inicio, fim, meio);
         fseek(in, (meio -1) * tamanhoRegistroLocadora(), SEEK_SET);
@@ -523,23 +543,31 @@ TLocadora *buscaBinariaLocacao(int chave, FILE *in, int inicio, int fim) {
         }
     }
 
+    clock_gettime(CLOCK_MONOTONIC, &fimTime);
+
+    tempoGasto = (fimTime.tv_sec - inicioTime.tv_sec) * 1000.0; // seconds to milliseconds
+    tempoGasto += (fimTime.tv_nsec - inicioTime.tv_nsec) / 1000000.0; // nanoseconds to milliseconds
+
+    fprintf(logFile, "Busca pela chave %d: \nComparações = %d, Tempo = %f milissegundos\n", chave, contComparacao, tempoGasto);
+    fclose(logFile);
+
     if (cod == chave) {
         return locadora;
     }
     else return NULL;
 }
 
-int excluiCliente(int chave, FILE *arqClientes) {
+int excluiCliente(int chave, FILE *arquivoClientes) {
     TCliente *cliente;
     int encontrado = 0;
 
-    if ((arqClientes = fopen("clientes.dat", "r+")) == NULL) {
+    if ((arquivoClientes = fopen("clientes.dat", "r+")) == NULL) {
         perror("Erro ao abrir o arquivo");
         exit(1);
     }
 
     // Procura o registro pelo Id
-    while ((cliente = lerCliente(arqClientes)) != NULL) {
+    while ((cliente = lerCliente(arquivoClientes)) != NULL) {
         if (cliente->idC == chave) {
             encontrado = 1;
             break;
@@ -548,7 +576,7 @@ int excluiCliente(int chave, FILE *arqClientes) {
 
     if (encontrado == 1) {
         // Move o ponteiro do arquivo para a posição correta
-        fseek(arqClientes, -sizeof(TCliente), SEEK_CUR);
+        fseek(arquivoClientes, -sizeof(TCliente), SEEK_CUR);
 
         // Preenche o registro com dados vazios
         TCliente clienteVazio;
@@ -558,20 +586,20 @@ int excluiCliente(int chave, FILE *arqClientes) {
         strcpy(clienteVazio.dataNascimentoC, "");
         strcpy(clienteVazio.telefoneC, "");
 
-        fwrite(&clienteVazio, sizeof(TCliente), 1, arqClientes);
+        fwrite(&clienteVazio, sizeof(TCliente), 1, arquivoClientes);
 
         printf("Cliente excluido com sucesso.\n");
     } else {
         printf("Cliente nao encontrado.\n");
     }
 
-    fclose(arqClientes);
+    fclose(arquivoClientes);
     free(cliente);
 
     return 0; // Indica sucesso
 }
 
-void devolverDvd(FILE *arqDvds) {
+void devolverDvd(FILE *arqDvdss) {
     int idDvd;
     struct dvd_est *dvd;
 
@@ -581,16 +609,20 @@ void devolverDvd(FILE *arqDvds) {
         printf("Informe o ID do DVD: ");
         scanf("%d", &idDvd);
 
-        dvd = buscaSequencialDvds(idDvd, arqDvds, "buscaDvds-log.txt");
+        dvd = buscaSequencialDvds(idDvd, arqDvdss, "buscaDvds-log.txt");
 
         if(dvd == NULL){
             printf("Dvd nao encontrado");
         }
 
-        dvd->emprestimo = 0;
-        fseek(arqDvds, -sizeof(TDvd), SEEK_CUR);
-        salvarDvd(dvd, arqDvds);
+        if(dvd->emprestimo == 1) {
+            dvd->emprestimo = 0;
+            fseek(arqDvdss, -sizeof(TDvd), SEEK_CUR);
+            salvarDvd(dvd, arqDvdss);
 
-        printf("\nDvd devolvido com sucesso!\n");
-
+            printf("\nDvd devolvido com sucesso!\n");
+        }else{
+            if(dvd->emprestimo == 0)
+                printf("Esse dvd nao estava alugado.");
+        }
 }

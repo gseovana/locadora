@@ -72,7 +72,7 @@ void imprimeLocadora(TLocadora *locadora);
 void criarBaseLocadora(FILE *arqLocadora, FILE *arqCliente, FILE *arqDvd, int tam);
 void imprimirBaseLocadora(FILE *arqLocadora);
 
-
+TLocadora *buscaBinariaLocacao(int chave, FILE *in, int inicio, int fim, const char *nomeArquivoLog);
 //outros
 void dvdsDisponiveis(FILE *arq);
 

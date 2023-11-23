@@ -4,7 +4,7 @@
 
 int main() {
 
-    FILE *arqClientes, *arqDvds, *arqLocadora, *arqFuncionarios;
+    FILE *arqClientes, *arqDvds, *arqLocadora;
     TCliente *cliente;
     TDvd *dvd;
     TLocadora *locacao;
@@ -26,10 +26,10 @@ int main() {
     }
 
 
-    criarBaseDvd(arqDvds, 10);
-    criarBaseCliente(arqClientes, 10);
-    criarBaseLocadora(arqLocadora, arqClientes, arqDvds, 3);
-    int gerador_id_locadora = 3;
+    criarBaseDvd(arqDvds, 3000);
+    criarBaseCliente(arqClientes, 1000);
+    criarBaseLocadora(arqLocadora, arqClientes, arqDvds, 400);
+    int gerador_id_locadora = 400;
 
     int opcao = -1,
             gerador_id_dvd = 1,
@@ -55,7 +55,7 @@ int main() {
                 // Limpar o buffer, consumindo o caractere de nova linha remanescente
                 while (getchar() != '\n');
 
-                dvd->id_dvd = 10 + gerador_id_dvd;
+                dvd->id_dvd = 3000 + gerador_id_dvd;
                 gerador_id_dvd++;
 
                 printf("ID: %d", dvd->id_dvd);
@@ -102,6 +102,7 @@ int main() {
                 break;
             case 4:
                 printf("\n********************** IMPRIMIR BASE DE DADOS DE DVDs ************************\n");
+
                 imprimirBaseDvd(arqDvds);
                 break;
             case 5:
@@ -113,7 +114,7 @@ int main() {
                 // Limpar o buffer, consumindo o caractere de nova linha remanescente
                 while ((c = getchar()) != '\n' && c != EOF);
 
-                cliente->idC = 10 + gerador_id_cliente;
+                cliente->idC = 1000 + gerador_id_cliente;
                 gerador_id_cliente++;
 
                 printf("ID: %d", cliente->idC);
@@ -169,7 +170,7 @@ int main() {
             case 9:
                 printf("\n*************************** ALUGAR DVD **************************");
 
-                gerador_id_locadora++;
+                gerador_id_locadora += 1;
                 alugaDvd(gerador_id_locadora, arqClientes, arqDvds, arqLocadora);
 
                 //imprimirDvdAlugado(arqLocadora, arqDvds, arqClientes);
@@ -182,7 +183,8 @@ int main() {
                 printf("\nInforme o codigo da locacao: ");
                 scanf("%d", &id_locacao);
 
-                locacao = buscaBinariaLocacao(id_locacao, arqLocadora, 0, tamanho_arquivo(arqLocadora)-1);
+
+                locacao = buscaBinariaLocacao(id_locacao, arqLocadora, 0, tamanho_arquivo(arqLocadora),"locadora.txt");
 
                 if (locacao != NULL) {
                     imprimeLocadora(locacao);
