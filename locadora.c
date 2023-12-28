@@ -496,6 +496,13 @@ int excluiDvd(int chave, FILE *arquivoD) {
     return 0; // Indica sucesso
 }
 
+int tamanhoRegistroDvd() {
+    return sizeof(int)  //id_dvd
+           + sizeof(char)*100 //nome_dvd
+           + sizeof(char)*100 //genero
+           + sizeof(int); //emprestimo
+}
+
 int tamanhoRegistroLocadora() {
     return sizeof(int)  //id_transacao
            + sizeof(TDvd) //id_dvd
@@ -625,4 +632,50 @@ void devolverDvd(FILE *arqDvdss) {
             if(dvd->emprestimo == 0)
                 printf("Esse dvd nao estava alugado.");
         }
+}
+
+void selectionSort(FILE *arqD, int tam) {
+    int i, j, min_idx;
+
+    for (i = 1; i <= tam - 1; i++) {
+        // Assume que o elemento atual é o mínimo
+        min_idx = i;
+
+        // Procura o elemento mínimo no restante do array
+        for (j = i + 1; j <= tam; j++) {
+            // Posiciona o arquivo no registro j
+            fseek(arqD, (j - 1) * tamanhoRegistroDvd(), SEEK_SET);
+            TDvd *dvdj = lerDvd(arqD);
+
+            // Posiciona o arquivo no registro min_idx
+            fseek(arqD, (min_idx - 1) * tamanhoRegistroDvd(), SEEK_SET);
+            TDvd *dvdMin = lerDvd(arqD);
+
+            // Compara os códigos e atualiza min_idx se necessário
+            if (dvdj->id_dvd < dvdMin->id_dvd) {
+                min_idx = j;
+            }
+        }
+
+        // Troca o elemento mínimo encontrado com o primeiro elemento não ordenado
+        if (min_idx != i) {
+            // Posiciona o arquivo no registro i
+            fseek(arqD, (i - 1) * tamanhoRegistroDvd(), SEEK_SET);
+            TDvd *dvdi = lerDvd(arqD);
+
+            // Posiciona o arquivo no registro min_idx
+            fseek(arqD, (min_idx - 1) * tamanhoRegistroDvd(), SEEK_SET);
+            TDvd *dvdMinn = lerDvd(arqD);
+
+            // Troca os registros
+            fseek(arqD, (i - 1) * tamanhoRegistroDvd(), SEEK_SET);
+            salvarDvd(dvdMinn, arqD);
+
+            fseek(arqD, (min_idx - 1) * tamanhoRegistroDvd(), SEEK_SET);
+            salvarDvd(dvdi, arqD);
+        }
+    }
+
+    // Descarrega o buffer para ter certeza que dados foram gravados
+    fflush(arqD);
 }

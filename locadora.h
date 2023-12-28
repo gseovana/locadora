@@ -85,4 +85,8 @@ int excluiCliente(int chave, FILE *arqClientes);
 int excluiDvd(int chave, FILE *arqDvds);
 int tamanhoRegistroLocadora();
 
+int tamanhoRegistroDvd();
+
+void selectionSort(FILE *arqD, int tam);
+
 #endif

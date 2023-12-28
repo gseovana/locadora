@@ -41,7 +41,8 @@ int main() {
         printf("\n***************************** LOCADORA TAGEO  ********************************");
         printf("\n1. Cadastrar DVD \n2. Buscar DVD \n3. Excluir DVD \n4. Imprimir todos os DVDs \n-----------------------------\n"
                "5. Cadastrar cliente \n6. Buscar cliente \n7. Excluir cliente \n8. Imprimir todos os clientes \n-----------------------------"
-               "\n9. Alugar DVD\n10. Buscar locacao \n11. Imprimir todas as locacoes\n12. Devolver DVD\n---------------------------\n0. Sair\n\nEscolha uma opção: ");
+               "\n9. Alugar DVD\n10. Buscar locacao \n11. Imprimir todas as locacoes\n12. Devolver DVD\n---------------------------"
+               "\n13. SelectionSort\n14. Partition: Selecao Natural\n15. blablabal\n---------------------------\n0. Sair\n\nEscolha uma opcao: ");
         scanf("%d", &opcao);
         //fflush(arq);
 
@@ -198,6 +199,30 @@ int main() {
             case 12:
                 printf("\n********************** DEVOLVER DVD *************************\n");
                 devolverDvd(arqDvds);
+                break;
+            case 13:
+                printf("\n************************* SELECTION SORT *******************************\n");
+                imprimirBaseDvd(arqDvds);
+
+                printf("\nAplicando SelectionSort na base de DVDs.......\n");
+                printf("\n\n\n\n\n\n\n\n\n");
+                selectionSort(arqDvds, 3000); //FICAR ATENTA AO TAMANHO DA BASE PASSADA COMO PARAMETRO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+                imprimirBaseDvd(arqDvds);
+                //printf("\033[H\033[J");
+
+                printf("\n\n\n\n\n\n\n\n\n");
+                imprimirBaseCliente(arqClientes);
+
+                printf("\nAplicando SelectionSort na base de clientes.......\n");
+                printf("\n\n\n\n\n\n\n\n\n");
+                selectionSort(arqClientes, 1000); //FICAR ATENTA AO TAMANHO DA BASE PASSADA COMO PARAMETRO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+                imprimirBaseCliente(arqClientes);
+                break;
+            case 14:
+                break;
+            case 15:
                 break;
         }
     }
