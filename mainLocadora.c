@@ -4,7 +4,7 @@
 
 int main() {
 
-    FILE *arqClientes, *arqDvds, *arqLocadora;
+    FILE *arqClientes, *arqDvds, *arqLocadora, *arqSaida;
     TCliente *cliente;
     TDvd *dvd;
     TLocadora *locacao;
@@ -26,10 +26,10 @@ int main() {
     }
 
 
-    criarBaseDvd(arqDvds, 3000);
-    criarBaseCliente(arqClientes, 1000);
-    criarBaseLocadora(arqLocadora, arqClientes, arqDvds, 400);
-    int gerador_id_locadora = 400;
+    criarBaseDvd(arqDvds, 30);
+    criarBaseCliente(arqClientes, 10);
+    criarBaseLocadora(arqLocadora, arqClientes, arqDvds, 4);
+    int gerador_id_locadora = 4;
 
     int opcao = -1,
             gerador_id_dvd = 1,
@@ -56,7 +56,7 @@ int main() {
                 // Limpar o buffer, consumindo o caractere de nova linha remanescente
                 while (getchar() != '\n');
 
-                dvd->id_dvd = 3000 + gerador_id_dvd;
+                dvd->id_dvd = 30 + gerador_id_dvd;
                 gerador_id_dvd++;
 
                 printf("ID: %d", dvd->id_dvd);
@@ -115,7 +115,7 @@ int main() {
                 // Limpar o buffer, consumindo o caractere de nova linha remanescente
                 while ((c = getchar()) != '\n' && c != EOF);
 
-                cliente->idC = 1000 + gerador_id_cliente;
+                cliente->idC = 10 + gerador_id_cliente;
                 gerador_id_cliente++;
 
                 printf("ID: %d", cliente->idC);
@@ -206,7 +206,7 @@ int main() {
 
                 printf("\nAplicando SelectionSort na base de DVDs.......\n");
                 printf("\n\n\n\n\n\n\n\n\n");
-                selectionSort(arqDvds, 3000); //FICAR ATENTA AO TAMANHO DA BASE PASSADA COMO PARAMETRO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                selectionSortDvd(arqDvds, 30); //FICAR ATENTA AO TAMANHO DA BASE PASSADA COMO PARAMETRO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
                 imprimirBaseDvd(arqDvds);
                 //printf("\033[H\033[J");
@@ -216,11 +216,17 @@ int main() {
 
                 printf("\nAplicando SelectionSort na base de clientes.......\n");
                 printf("\n\n\n\n\n\n\n\n\n");
-                selectionSort(arqClientes, 1000); //FICAR ATENTA AO TAMANHO DA BASE PASSADA COMO PARAMETRO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                selectionSortCliente(arqClientes, 10); //FICAR ATENTA AO TAMANHO DA BASE PASSADA COMO PARAMETRO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
                 imprimirBaseCliente(arqClientes);
                 break;
             case 14:
+                printf("\n********************** PARTICOES ORDENADAS: SELECAO NATURAL ************************\n");
+                if ((arqSaida = fopen("saida.dat", "w+b")) == NULL) {
+                    printf("Erro ao abrir arquivo\n");
+                    exit(1);
+                }
+                gerarParticoesOrdenadasDvd(arqDvds, arqSaida, 10, 10);
                 break;
             case 15:
                 break;
