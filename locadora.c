@@ -20,7 +20,7 @@ TCliente *criarCliente(int idC, char *nomeC , char *dataNascimentoC, char *cpfC,
 
     TCliente *cliente = (TCliente *) malloc(sizeof(TCliente));
 
-    if(cliente) memset(cliente, 0, sizeof(cliente)); // memset( lugar que vai guardar a copia, o que vai ser copiado, n� de bytes que recebera a copia);
+    if(cliente) memset(cliente, 0, sizeof(TCliente)); // memset( lugar que vai guardar a copia, o que vai ser copiado, n� de bytes que recebera a copia);
     cliente->idC = idC;
     strcpy(cliente->nomeC, nomeC);
     strcpy(cliente->dataNascimentoC, dataNascimentoC); //strcpy copia uma string para outra
@@ -368,15 +368,6 @@ void alugaDvd(int gerador_id_locadora, FILE *arqClientes, FILE *arqDvds, FILE *a
     TLocadora *locadora;
     struct dvd_est *dvd;
 
-    /*if ((arqClientes = fopen("clientes.dat", "r+b")) == NULL) {
-        printf("Erro ao abrir arquivo\n");
-        exit(1);
-    }*/
-
-    /*if ((arqDvds = fopen("Dvds.dat", "r+b")) == NULL) {
-        printf("Erro ao abrir arquivo\n");
-        exit(1);
-    }*/
 
     do {
         printf("\n");
@@ -501,6 +492,14 @@ int tamanhoRegistroDvd() {
            + sizeof(char)*100 //nome_dvd
            + sizeof(char)*100 //genero
            + sizeof(int); //emprestimo
+}
+
+int tamanhoRegistroCliente() {
+    return sizeof(int)  //idC
+           + sizeof(char)*100 //nomeC
+           + sizeof(char)*50 //dataNascimento
+           + sizeof(char)*50 //cpfC
+           + sizeof(char)*50; //teleofneC
 }
 
 int tamanhoRegistroLocadora() {
@@ -634,7 +633,7 @@ void devolverDvd(FILE *arqDvdss) {
         }
 }
 
-void selectionSort(FILE *arqD, int tam) {
+void selectionSortDvd(FILE *arqD, int tam) {
     int i, j, min_idx;
 
     for (i = 1; i <= tam - 1; i++) {
@@ -678,4 +677,118 @@ void selectionSort(FILE *arqD, int tam) {
 
     // Descarrega o buffer para ter certeza que dados foram gravados
     fflush(arqD);
+}
+
+void selectionSortCliente(FILE *arqC, int tam) {
+    int i, j, min_idx;
+
+    for (i = 1; i <= tam - 1; i++) {
+        // Assume que o elemento atual é o mínimo
+        min_idx = i;
+
+        // Procura o elemento mínimo no restante do array
+        for (j = i + 1; j <= tam; j++) {
+            // Posiciona o arquivo no registro j
+            fseek(arqC, (j - 1) * tamanhoRegistroCliente(), SEEK_SET);
+            TCliente *clientej = lerCliente(arqC);
+
+            // Posiciona o arquivo no registro min_idx
+            fseek(arqC, (min_idx - 1) * tamanhoRegistroCliente(), SEEK_SET);
+            TCliente *clienteMin = lerCliente(arqC);
+
+            // Compara os códigos e atualiza min_idx se necessário
+            if (clientej->idC < clienteMin->idC) {
+                min_idx = j;
+            }
+        }
+
+        // Troca o elemento mínimo encontrado com o primeiro elemento não ordenado
+        if (min_idx != i) {
+            // Posiciona o arquivo no registro i
+            fseek(arqC, (i - 1) * tamanhoRegistroCliente(), SEEK_SET);
+            TDvd *clientei = lerCliente(arqC);
+
+            // Posiciona o arquivo no registro min_idx
+            fseek(arqC, (min_idx - 1) * tamanhoRegistroCliente(), SEEK_SET);
+            TDvd *clienteMinn = lerCliente(arqC);
+
+            // Troca os registros
+            fseek(arqC, (i - 1) * tamanhoRegistroCliente(), SEEK_SET);
+            salvarDvd(clienteMinn, arqC);
+
+            fseek(arqC, (min_idx - 1) * tamanhoRegistroCliente(), SEEK_SET);
+            salvarDvd(clientei, arqC);
+        }
+    }
+
+    // Descarrega o buffer para ter certeza que dados foram gravados
+    fflush(arqC);
+}
+
+void gerarParticoesOrdenadasDvd(FILE *arquivoEntrada, FILE *arquivoSaida, int tamanho, int tam_reservatorio) {
+    TDvd memoria[tamanho]; // Array em memória
+    TDvd reservatorio[tam_reservatorio]; // Reservatório
+    int qtdReservatorio = 0;
+    int num_particao = 1;
+
+    // Lê os primeiros M registros do arquivo para a memória
+    for (int i = 0; i < tamanho; ++i) {
+        if (fread(&memoria[i], sizeof(TDvd), 1, arquivoEntrada) != 1) {
+            // Arquivo de entrada acabou
+            break;
+        }
+    }
+
+    // Enquanto houver registros no array em memória
+    while (1) {
+        // Encontrar o registro com a menor chave no array em memória
+        int indiceMenorChave = 0;
+        for (int i = 1; i < tamanho; ++i) {
+            if (memoria[i].id_dvd < memoria[indiceMenorChave].id_dvd) {
+                indiceMenorChave = i;
+            }
+        }
+
+        // Gravar o registro com menor chave na partição de saída
+        fwrite(&memoria[indiceMenorChave], sizeof(TDvd), 1, arquivoSaida);
+
+        // Substituir o registro pelo próximo registro do arquivo de entrada
+        if (fread(&memoria[indiceMenorChave], sizeof(TDvd), 1, arquivoEntrada) != 1) {
+            // Arquivo de entrada acabou
+            break;
+        }
+
+        // Se a chave do próximo registro for menor, gravá-lo no reservatório
+        if (memoria[indiceMenorChave].id_dvd < memoria[indiceMenorChave - 1].id_dvd) {
+            if (qtdReservatorio < tam_reservatorio) {
+                reservatorio[qtdReservatorio++] = memoria[indiceMenorChave];
+            }
+        }
+
+        // Caso ainda exista espaço no reservatório, voltar ao passo 2
+        if (qtdReservatorio > 0) {
+            continue;
+        }
+
+        // Fechar a partição de saída
+        // Copiar os registros do reservatório para o array em memória
+        for (int i = 0; i < tam_reservatorio; ++i) {
+            memoria[i] = reservatorio[i];
+        }
+
+        // Esvaziar o reservatório
+        qtdReservatorio = 0;
+
+        // Abrir nova partição de saída
+        char nomeArquivoSaida[20];
+        sprintf(nomeArquivoSaida, "particao_saida_%d.bin", num_particao++);
+        arquivoSaida = fopen(nomeArquivoSaida, "wb");
+
+    // Verificar se a abertura foi bem-sucedida
+        if (arquivoSaida == NULL) {
+            perror("Erro ao abrir arquivo de saída");
+            break;
+        }
+        // Voltar ao passo 2
+    }
 }
