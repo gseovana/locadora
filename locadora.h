@@ -79,7 +79,7 @@ void dvdsDisponiveis(FILE *arq);
 void alugaDvd(int gerador_id_locadora, FILE *arqClientes, FILE *arqDvds, FILE *arqLocadora);
 void imprimirDvdAlugado(FILE *arq, FILE *arqD, FILE *arqC);
 void devolverDvd(FILE *arqDvds);
-void gerarParticoesOrdenadasDvd(FILE *arquivoEntrada, FILE *arquivoSaida, int tamanho, int tam_reservatorio);
+void gerarParticoesOrdenadasDvd(FILE *arquivoEntrada, int tamanho, int tam_reservatorio);
 
 
 int excluiCliente(int chave, FILE *arqClientes);
@@ -88,8 +88,8 @@ int excluiDvd(int chave, FILE *arqDvds);
 int tamanhoRegistroLocadora();
 
 int tamanhoRegistroDvd();
-
-void selectionSortDvd(FILE *arqD, int tam);
-void selectionSortCliente(FILE *arqC, int tam);
+int tamanhoRegistroCliente();
+int tamanhoArquivoCliente(FILE *arq, int contSizeFile);
+int tamanhoArquivoDvd(FILE *arq, int contSizeFile);
 
 #endif

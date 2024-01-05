@@ -15,6 +15,34 @@ void shuffle(int *vet,int MAX,int MIN) {
     }
 }
 
+int tamanhoArquivoDvd(FILE *arqD, int contSizeFile) {
+    int i = 0;
+    TDvd *dvd;
+
+    while ((dvd = lerDvd(arqD)) != NULL) {
+        fseek(arqD, i * sizeof(TDvd), SEEK_SET);
+        TDvd *aux = lerDvd(arqD);
+        if(aux != NULL) {
+            contSizeFile++;
+        }
+        i++;
+    }
+    return contSizeFile;
+}
+
+int tamanhoArquivoCliente(FILE *arqC, int contSizeFile) {
+    int i = 0;
+    while(!feof(arqC)) {
+        fseek(arqC, i * sizeof(TCliente), SEEK_SET);
+        TCliente *aux = lerCliente(arqC);
+        if(aux != NULL) {
+            contSizeFile++;
+        }
+        i++;
+    }
+    return contSizeFile;
+}
+
 //Cliente
 TCliente *criarCliente(int idC, char *nomeC , char *dataNascimentoC, char *cpfC, char *telefoneC){
 
@@ -633,103 +661,15 @@ void devolverDvd(FILE *arqDvdss) {
         }
 }
 
-void selectionSortDvd(FILE *arqD, int tam) {
-    int i, j, min_idx;
 
-    for (i = 1; i <= tam - 1; i++) {
-        // Assume que o elemento atual é o mínimo
-        min_idx = i;
 
-        // Procura o elemento mínimo no restante do array
-        for (j = i + 1; j <= tam; j++) {
-            // Posiciona o arquivo no registro j
-            fseek(arqD, (j - 1) * tamanhoRegistroDvd(), SEEK_SET);
-            TDvd *dvdj = lerDvd(arqD);
-
-            // Posiciona o arquivo no registro min_idx
-            fseek(arqD, (min_idx - 1) * tamanhoRegistroDvd(), SEEK_SET);
-            TDvd *dvdMin = lerDvd(arqD);
-
-            // Compara os códigos e atualiza min_idx se necessário
-            if (dvdj->id_dvd < dvdMin->id_dvd) {
-                min_idx = j;
-            }
-        }
-
-        // Troca o elemento mínimo encontrado com o primeiro elemento não ordenado
-        if (min_idx != i) {
-            // Posiciona o arquivo no registro i
-            fseek(arqD, (i - 1) * tamanhoRegistroDvd(), SEEK_SET);
-            TDvd *dvdi = lerDvd(arqD);
-
-            // Posiciona o arquivo no registro min_idx
-            fseek(arqD, (min_idx - 1) * tamanhoRegistroDvd(), SEEK_SET);
-            TDvd *dvdMinn = lerDvd(arqD);
-
-            // Troca os registros
-            fseek(arqD, (i - 1) * tamanhoRegistroDvd(), SEEK_SET);
-            salvarDvd(dvdMinn, arqD);
-
-            fseek(arqD, (min_idx - 1) * tamanhoRegistroDvd(), SEEK_SET);
-            salvarDvd(dvdi, arqD);
-        }
-    }
-
-    // Descarrega o buffer para ter certeza que dados foram gravados
-    fflush(arqD);
-}
-
-void selectionSortCliente(FILE *arqC, int tam) {
-    int i, j, min_idx;
-
-    for (i = 1; i <= tam - 1; i++) {
-        // Assume que o elemento atual é o mínimo
-        min_idx = i;
-
-        // Procura o elemento mínimo no restante do array
-        for (j = i + 1; j <= tam; j++) {
-            // Posiciona o arquivo no registro j
-            fseek(arqC, (j - 1) * tamanhoRegistroCliente(), SEEK_SET);
-            TCliente *clientej = lerCliente(arqC);
-
-            // Posiciona o arquivo no registro min_idx
-            fseek(arqC, (min_idx - 1) * tamanhoRegistroCliente(), SEEK_SET);
-            TCliente *clienteMin = lerCliente(arqC);
-
-            // Compara os códigos e atualiza min_idx se necessário
-            if (clientej->idC < clienteMin->idC) {
-                min_idx = j;
-            }
-        }
-
-        // Troca o elemento mínimo encontrado com o primeiro elemento não ordenado
-        if (min_idx != i) {
-            // Posiciona o arquivo no registro i
-            fseek(arqC, (i - 1) * tamanhoRegistroCliente(), SEEK_SET);
-            TDvd *clientei = lerCliente(arqC);
-
-            // Posiciona o arquivo no registro min_idx
-            fseek(arqC, (min_idx - 1) * tamanhoRegistroCliente(), SEEK_SET);
-            TDvd *clienteMinn = lerCliente(arqC);
-
-            // Troca os registros
-            fseek(arqC, (i - 1) * tamanhoRegistroCliente(), SEEK_SET);
-            salvarDvd(clienteMinn, arqC);
-
-            fseek(arqC, (min_idx - 1) * tamanhoRegistroCliente(), SEEK_SET);
-            salvarDvd(clientei, arqC);
-        }
-    }
-
-    // Descarrega o buffer para ter certeza que dados foram gravados
-    fflush(arqC);
-}
-
-void gerarParticoesOrdenadasDvd(FILE *arquivoEntrada, FILE *arquivoSaida, int tamanho, int tam_reservatorio) {
-    TDvd memoria[tamanho]; // Array em memória
-    TDvd reservatorio[tam_reservatorio]; // Reservatório
+void gerarParticoesOrdenadasDvd(FILE *arquivoEntrada, int tamanho, int tam_reservatorio) {
+    TDvd memoria[tamanho];  // Array em memória
+    TDvd reservatorio[tam_reservatorio];  // Reservatório
     int qtdReservatorio = 0;
     int num_particao = 1;
+
+    FILE *arquivoSaida = NULL;
 
     // Lê os primeiros M registros do arquivo para a memória
     for (int i = 0; i < tamanho; ++i) {
@@ -749,6 +689,26 @@ void gerarParticoesOrdenadasDvd(FILE *arquivoEntrada, FILE *arquivoSaida, int ta
             }
         }
 
+        // Se a chave do próximo registro for menor, gravá-lo no reservatório
+        if (indiceMenorChave > 0 && memoria[indiceMenorChave].id_dvd < memoria[indiceMenorChave - 1].id_dvd) {
+            if (qtdReservatorio < tam_reservatorio) {
+                reservatorio[qtdReservatorio++] = memoria[indiceMenorChave];
+            }
+        }
+
+        // Abrir nova partição de saída se ainda não foi aberta
+        if (arquivoSaida == NULL) {
+            char nomeArquivoSaida[30];
+            sprintf(nomeArquivoSaida, "particao_saida_%d.bin", num_particao++);
+            arquivoSaida = fopen(nomeArquivoSaida, "wb");
+
+            // Verificar se a abertura foi bem-sucedida
+            if (arquivoSaida == NULL) {
+                perror("Erro ao abrir arquivo de saída");
+                break;
+            }
+        }
+
         // Gravar o registro com menor chave na partição de saída
         fwrite(&memoria[indiceMenorChave], sizeof(TDvd), 1, arquivoSaida);
 
@@ -758,37 +718,22 @@ void gerarParticoesOrdenadasDvd(FILE *arquivoEntrada, FILE *arquivoSaida, int ta
             break;
         }
 
-        // Se a chave do próximo registro for menor, gravá-lo no reservatório
-        if (memoria[indiceMenorChave].id_dvd < memoria[indiceMenorChave - 1].id_dvd) {
-            if (qtdReservatorio < tam_reservatorio) {
-                reservatorio[qtdReservatorio++] = memoria[indiceMenorChave];
-            }
-        }
-
         // Caso ainda exista espaço no reservatório, voltar ao passo 2
-        if (qtdReservatorio > 0) {
+        if (qtdReservatorio < tam_reservatorio) {
             continue;
-        }
-
-        // Fechar a partição de saída
-        // Copiar os registros do reservatório para o array em memória
-        for (int i = 0; i < tam_reservatorio; ++i) {
-            memoria[i] = reservatorio[i];
         }
 
         // Esvaziar o reservatório
         qtdReservatorio = 0;
 
-        // Abrir nova partição de saída
-        char nomeArquivoSaida[20];
-        sprintf(nomeArquivoSaida, "particao_saida_%d.bin", num_particao++);
-        arquivoSaida = fopen(nomeArquivoSaida, "wb");
+        // Fechar a partição de saída atual
+        fclose(arquivoSaida);
+        arquivoSaida = NULL;
+    }
 
-    // Verificar se a abertura foi bem-sucedida
-        if (arquivoSaida == NULL) {
-            perror("Erro ao abrir arquivo de saída");
-            break;
-        }
-        // Voltar ao passo 2
+    // Após o término do loop, fechar a última partição de saída, se estiver aberta
+    if (arquivoSaida != NULL) {
+        fclose(arquivoSaida);
     }
 }
+
