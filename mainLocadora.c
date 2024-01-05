@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "locadora.c"
+#include "selectionSort.h"
+#include "selecaoNatural.h"
 
 int main() {
 
-    FILE *arqClientes, *arqDvds, *arqLocadora, *arqSaida;
+    FILE *arqClientes, *arqDvds, *arqLocadora, *arqSaida, *arqSaida2;
     TCliente *cliente;
     TDvd *dvd;
     TLocadora *locacao;
@@ -222,11 +224,31 @@ int main() {
                 break;
             case 14:
                 printf("\n********************** PARTICOES ORDENADAS: SELECAO NATURAL ************************\n");
-                if ((arqSaida = fopen("saida.dat", "w+b")) == NULL) {
-                    printf("Erro ao abrir arquivo\n");
-                    exit(1);
-                }
-                gerarParticoesOrdenadasDvd(arqDvds, arqSaida, 10, 10);
+
+                imprimirBaseDvd(arqDvds);
+                //printf("\033[H\033[J");
+
+                printf("\n\n\n\n\n\n\n\n\n");
+                printf("\nAplicando metodo de particoes ordenadas DVD.......\n");
+                int tamArqDvd = tamanhoArquivoDvd(arqDvds, 0);
+                selecaoNatural(arqDvds, 30);
+                printf("\n\n\n\n\n\n\n\n\n");
+
+                imprimirBaseDvd(arqDvds);
+                printf("\n\n\n\n\n\n\n\n\n");
+
+                imprimirBaseCliente(arqClientes);
+                //printf("\033[H\033[J");
+
+                printf("\n\n\n\n\n\n\n\n\n");
+                printf("\nAplicando metodo de particoes ordenadas CLIENTES.......\n");
+                int tamArqCliente = tamanhoArquivoCliente(arqClientes, 0);
+                selecaoNatural(arqClientes, 10);
+                printf("\n\n\n\n\n\n\n\n\n");
+
+                imprimirBaseCliente(arqClientes);
+                printf("\n\n\n\n\n\n\n\n\n");
+
                 break;
             case 15:
                 break;
