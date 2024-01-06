@@ -54,10 +54,9 @@ void arvoreVencCliente(TCliente **cliente, FILE *arq, int tam, int *arvoreAux) {
     *arvoreAux +=1;
 }
 
-void arvoreBinariaVencDvd(int qtdParticoes){
-    //struct timeval current_time;
-    //gettimeofday(&current_time, NULL);
-
+void arvoreBinariaVencDvd(int qtdParticoes, FILE *logFile){
+    struct timeval current_time;
+    gettimeofday(&current_time, NULL);
 
     int auxQtdParticoes = qtdParticoes;
     int flagAuxFinal = 0;
@@ -157,13 +156,14 @@ void arvoreBinariaVencDvd(int qtdParticoes){
     free(auxArq);
     imprimirBaseDvd(arvoreBinaria);
     fclose(arvoreBinaria);
-    //*tempoExecucao = current_time.tv_usec;
+
+    fprintf(logFile, "ARVORE BINARIA VENCEDORES DVD - Tempo de execucao: %f", current_time.tv_usec);
+
 }
 
-void arvoreBinariaVencCliente(int qtdParticoes){
-    //struct timeval current_time;
-    //gettimeofday(&current_time, NULL);
-
+void arvoreBinariaVencCliente(int qtdParticoes, FILE *logFile){
+    struct timeval current_time;
+    gettimeofday(&current_time, NULL);
 
     int auxQtdParticoes = qtdParticoes;
     int flagAuxFinal = 0;
@@ -188,7 +188,7 @@ void arvoreBinariaVencCliente(int qtdParticoes){
         clienteAux[i] = calloc(sizeof(TCliente), 1);
     }
 
-    FILE *arvoreBinaria = fopen("arvoreBinariaC.dat", "wb+");
+    FILE *arvoreBinariaC = fopen("arvoreBinariaC.dat", "wb+");
 
     for (int i = 0; i < qtdParticoes; i++){
         auxArq[i].init_p = 0;
@@ -211,7 +211,7 @@ void arvoreBinariaVencCliente(int qtdParticoes){
         auxArq[i].end_p = 0;
     }
 
-    arvoreVencCliente(clienteAux, arvoreBinaria, tam, &arvoreAux);
+    arvoreVencCliente(clienteAux, arvoreBinariaC, tam, &arvoreAux);
 
     while (flagAuxFinal < qtdParticoes){
         aux = tam - 1;
@@ -231,7 +231,7 @@ void arvoreBinariaVencCliente(int qtdParticoes){
                     if (clienteAux[j]->idC == menor->idC) clienteAux[j]->idC = 15000;
                 }
 
-                arvoreVencCliente(clienteAux, arvoreBinaria, tam, &arvoreAux);
+                arvoreVencCliente(clienteAux, arvoreBinariaC, tam, &arvoreAux);
             } else {
                 *menor = *clienteAux[0];
 
@@ -242,7 +242,7 @@ void arvoreBinariaVencCliente(int qtdParticoes){
                         fseek (auxArq[i].filePartition, auxArq[i].init_p * sizeof(TCliente), SEEK_SET);
                         free(clienteAux[aux]);
                         clienteAux[aux] = lerCliente(auxArq[i].filePartition);
-                        arvoreVencCliente(clienteAux, arvoreBinaria, tam, &arvoreAux);
+                        arvoreVencCliente(clienteAux, arvoreBinariaC, tam, &arvoreAux);
                     }
                 }
                 aux--;
@@ -261,7 +261,9 @@ void arvoreBinariaVencCliente(int qtdParticoes){
     free(clienteAux);
     free(menor);
     free(auxArq);
-    imprimirBaseCliente(arvoreBinaria);
-    fclose(arvoreBinaria);
+    imprimirBaseCliente(arvoreBinariaC);
+    fclose(arvoreBinariaC);
+    fprintf(logFile, "ARVORE BINARIA VENCEDORES CLIENTE - Tempo de execucao: %f", current_time.tv_usec);
+    //fclose(logFile);
     //*tempoExecucao = current_time.tv_usec;
 }

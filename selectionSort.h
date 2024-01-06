@@ -6,6 +6,6 @@
 #define LOCADORA_TAGEO_SELECTIONSORT_H
 #include <stdio.h>
 
-void selectionSortDvd(FILE *arqD, int tam);
-void selectionSortCliente(FILE *arqC, int tam);
+void selectionSortDvd(FILE *arqD, int tam, FILE *logFile);
+void selectionSortCliente(FILE *arqC, int tam, FILE *logFile);
 #endif //LOCADORA_TAGEO_SELECTIONSORT_H

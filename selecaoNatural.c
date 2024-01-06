@@ -3,10 +3,11 @@
 #include <string.h>
 //#include "selecaoNatural.h"
 #include "locadora.h"
+#include <sys/time.h>
 
-
-
-int selecaoNaturalDvd(FILE *arq, int tam) {
+int selecaoNaturalDvd(FILE *arq, int tam, FILE *logFile) {
+    struct timeval current_time;
+    gettimeofday(&current_time, NULL);
 
     int pos = 0;
     int quantidadeParticoes = 0;
@@ -141,10 +142,15 @@ int selecaoNaturalDvd(FILE *arq, int tam) {
         fclose(arqParticao);
     }
 
+    fprintf(logFile, "SELECAO NATURAL DVD - Tempo de execucao: %f", current_time.tv_usec);
+    //fclose(logFile);
     return quantidadeParticoes;
+
 }
 
-int selecaoNaturalCliente(FILE *arq, int tam) {
+int selecaoNaturalCliente(FILE *arq, int tam, FILE *logFile) {
+    struct timeval current_time;
+    gettimeofday(&current_time, NULL);
 
     int pos = 0;
     int quantidadeParticoes = 0;
@@ -278,6 +284,9 @@ int selecaoNaturalCliente(FILE *arq, int tam) {
         FILE *arqParticao = fopen(nomeParticao, "rb+");
         fclose(arqParticao);
     }
+
+    fprintf(logFile, "SELECAO NATURAL CLIENTE: Tempo de execucao: %f", current_time.tv_usec);
+    //fclose(logFile);
 
     return quantidadeParticoes;
 }
