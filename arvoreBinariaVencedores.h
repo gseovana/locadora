@@ -7,7 +7,10 @@
 
 #include "locadora.h"
 
-void arvoreVenc(TDvd **dvd, FILE *arq, int tam, int *arvoreAux);
-void arvoreBinariaVenc(int qtdParticoes, float *tempoExecucao);
+void arvoreVencDvd(TDvd **dvd, FILE *arq, int tam, int *arvoreAux);
+void arvoreBinariaVencDvd(int qtdParticoes, FILE *logFile);
+
+void arvoreVencCliente(TCliente **cliente, FILE *arq, int tam, int *arvoreAux);
+void arvoreBinariaVencCliente(int qtdParticoes, FILE *logFile);
 
 #endif //LOCADORA_TAGEO_ARVOREBINARIAVENCEDORES_H

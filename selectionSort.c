@@ -4,9 +4,13 @@
 #include <stdio.h>
 #include "locadora.h"
 #include "selectionSort.h"
+#include <sys/time.h>
 
-void selectionSortDvd(FILE *arqD, int tam) {
-    int i, j, min_idx;
+void selectionSortDvd(FILE *arqD, int tam, FILE *logFile) {
+    struct timeval current_time;
+    gettimeofday(&current_time, NULL);
+
+    int i, j, min_idx, qntComp = 0;
 
     for (i = 1; i <= tam - 1; i++) {
         // Assume que o elemento atual é o mínimo
@@ -23,6 +27,7 @@ void selectionSortDvd(FILE *arqD, int tam) {
             TDvd *dvdMin = lerDvd(arqD);
 
             // Compara os códigos e atualiza min_idx se necessário
+            qntComp++;
             if (dvdj->id_dvd < dvdMin->id_dvd) {
                 min_idx = j;
             }
@@ -49,10 +54,18 @@ void selectionSortDvd(FILE *arqD, int tam) {
 
     // Descarrega o buffer para ter certeza que dados foram gravados
     fflush(arqD);
+
+    // Escrevendo no arquivo de log
+    fprintf(logFile, "SELECTION SORT DVD - Tempo de execucao: %f\nQuantidade comparacoes: %d", current_time.tv_usec, qntComp);
+    //fclose(logFile);
+
 }
 
-void selectionSortCliente(FILE *arqC, int tam) {
-    int i, j, min_idx;
+void selectionSortCliente(FILE *arqC, int tam, FILE *logFile) {
+    struct timeval current_time;
+    gettimeofday(&current_time, NULL);
+
+    int i, j, min_idx, qntComp = 0;
 
     for (i = 1; i <= tam - 1; i++) {
         // Assume que o elemento atual é o mínimo
@@ -69,6 +82,7 @@ void selectionSortCliente(FILE *arqC, int tam) {
             TCliente *clienteMin = lerCliente(arqC);
 
             // Compara os códigos e atualiza min_idx se necessário
+            qntComp++;
             if (clientej->idC < clienteMin->idC) {
                 min_idx = j;
             }
@@ -95,4 +109,6 @@ void selectionSortCliente(FILE *arqC, int tam) {
 
     // Descarrega o buffer para ter certeza que dados foram gravados
     fflush(arqC);
+    fprintf(logFile, "SELECTION SORT CLIENTE - Tempo de execucao: %f\nQuantidade comparacoes: %d", current_time.tv_usec, qntComp);
+    //fclose(logFile);
 }

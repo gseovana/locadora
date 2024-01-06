@@ -10,7 +10,7 @@
 #define TAM_LOCADORA 4
 int main() {
 
-    FILE *arqClientes, *arqDvds, *arqLocadora;
+    FILE *arqClientes, *arqDvds, *arqLocadora, *logFile;
     TCliente *cliente;
     TDvd *dvd;
     TLocadora *locacao;
@@ -31,6 +31,10 @@ int main() {
         exit(1);
     }
 
+    if ((logFile = fopen("log.txt", "w")) == NULL) {
+        printf("Erro ao abrir arquivo\n");
+        exit(1);
+    }
 
     criarBaseDvd(arqDvds, TAM_DVD);
     criarBaseCliente(arqClientes, TAM_CLIENTE);
@@ -38,12 +42,9 @@ int main() {
 
     int gerador_id_locadora = 1,
         opcao = -1,
-        gerador_id_dvd = 1,
-        gerador_id_cliente = 1,c;
+        gerador_id_dvd = 0,
+        gerador_id_cliente = 0,c;
 
-    float tempoExecucao;
-    int tamDvd;
-    int tamCliente;
 
     while (opcao != 0) {
         system("clear");
@@ -65,8 +66,9 @@ int main() {
                 // Limpar o buffer, consumindo o caractere de nova linha remanescente
                 while (getchar() != '\n');
 
-                dvd->id_dvd = TAM_DVD + gerador_id_dvd;
                 gerador_id_dvd++;
+                dvd->id_dvd = TAM_DVD + gerador_id_dvd;
+
 
                 printf("ID: %d", dvd->id_dvd);
 
@@ -124,8 +126,9 @@ int main() {
                 // Limpar o buffer, consumindo o caractere de nova linha remanescente
                 while ((c = getchar()) != '\n' && c != EOF);
 
-                cliente->idC = TAM_CLIENTE + gerador_id_cliente;
                 gerador_id_cliente++;
+                cliente->idC = TAM_CLIENTE + gerador_id_cliente;
+
 
                 printf("ID: %d", cliente->idC);
 
@@ -194,7 +197,7 @@ int main() {
                 scanf("%d", &id_locacao);
 
 
-                locacao = buscaBinariaLocacao(id_locacao, arqLocadora, 0, tamanho_arquivo(arqLocadora),"locadora.txt");
+                locacao = buscaBinariaLocacao(id_locacao, arqLocadora, 0, tamanho_arquivo_locadora(arqLocadora),"locadora.txt");
 
                 if (locacao != NULL) {
                     imprimeLocadora(locacao);
@@ -215,7 +218,7 @@ int main() {
 
                 printf("\nAplicando SelectionSort na base de DVDs.......\n");
                 printf("\n\n\n\n\n\n\n\n\n");
-                selectionSortDvd(arqDvds, 30); //FICAR ATENTA AO TAMANHO DA BASE PASSADA COMO PARAMETRO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                selectionSortDvd(arqDvds, TAM_DVD, logFile);
 
                 imprimirBaseDvd(arqDvds);
                 //printf("\033[H\033[J");
@@ -225,7 +228,7 @@ int main() {
 
                 printf("\nAplicando SelectionSort na base de clientes.......\n");
                 printf("\n\n\n\n\n\n\n\n\n");
-                selectionSortCliente(arqClientes, 10); //FICAR ATENTA AO TAMANHO DA BASE PASSADA COMO PARAMETRO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                selectionSortCliente(arqClientes, TAM_CLIENTE, logFile);
 
                 imprimirBaseCliente(arqClientes);
                 break;
@@ -238,22 +241,21 @@ int main() {
                 printf("\n\n\n\n");
                 printf("\nAplicando metodo de arvore binaria de vencedores na base de DVDs.......\n");
                 int qtd = 1;
-                tamDvd = tamanhoArquivoDvd(arqDvds,0);
-                qtd += selecaoNatural(arqDvds, tamDvd);
 
-                arvoreBinariaVenc(qtd, &tempoExecucao);
-                FILE *logFile = fopen("log.txt", "a"); // Abre o arquivo de log em modo de acréscimo
-                if (logFile == NULL) {
-                    printf("Erro ao abrir arquivo de log\n");
-                    exit(1);
-                }
+                qtd += selecaoNaturalDvd(arqDvds, tamanho_arquivo_dvd(arqDvds), logFile);
 
+                arvoreBinariaVencDvd(qtd, logFile);
+                printf("\n\n\n\n");
 
-                // Escrevendo no arquivo de log
-                fprintf(logFile, "Tempo de execucao: %f", tempoExecucao);
-                fclose(logFile);
+                imprimirBaseCliente(arqClientes);
+                printf("\n\n\n\n");
+                printf("\nAplicando metodo de arvore binaria de vencedores na base de clientes.......\n");
 
-                imprimirBaseDvd(arqDvds);
+                qtd = 1;
+                
+                qtd += selecaoNaturalCliente(arqClientes, tamanho_arquivo_cliente(arqClientes), logFile);
+
+                arvoreBinariaVencCliente(qtd, logFile);
 
                 //printf("\033[H\033[J");
                 break;

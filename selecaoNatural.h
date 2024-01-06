@@ -7,5 +7,7 @@
 
 #include <stdio.h>
 
-int selecaoNatural(FILE *arq, int tam);
+int selecaoNaturalDvd(FILE *arq, int tam, FILE *logFile);
+int selecaoNaturalCliente(FILE *arq, int tam, FILE *logFile);
+
 #endif //LOCADORA_TAGEO_SELECAONATURAL_H
