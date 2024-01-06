@@ -3,10 +3,14 @@
 #include "locadora.c"
 #include "selectionSort.h"
 #include "selecaoNatural.h"
+#include "arvoreBinariaVencedores.h"
 
+#define TAM_CLIENTE 10
+#define TAM_DVD 30
+#define TAM_LOCADORA 4
 int main() {
 
-    FILE *arqClientes, *arqDvds, *arqLocadora, *arqSaida, *arqSaida2;
+    FILE *arqClientes, *arqDvds, *arqLocadora;
     TCliente *cliente;
     TDvd *dvd;
     TLocadora *locacao;
@@ -28,15 +32,18 @@ int main() {
     }
 
 
-    criarBaseDvd(arqDvds, 30);
-    criarBaseCliente(arqClientes, 10);
-    criarBaseLocadora(arqLocadora, arqClientes, arqDvds, 4);
-    int gerador_id_locadora = 4;
+    criarBaseDvd(arqDvds, TAM_DVD);
+    criarBaseCliente(arqClientes, TAM_CLIENTE);
+    criarBaseLocadora(arqLocadora, arqClientes, arqDvds, TAM_LOCADORA);
 
-    int opcao = -1,
-            gerador_id_dvd = 1,
-            gerador_id_cliente = 1,c;
+    int gerador_id_locadora = 1,
+        opcao = -1,
+        gerador_id_dvd = 1,
+        gerador_id_cliente = 1,c;
 
+    float tempoExecucao;
+    int tamDvd;
+    int tamCliente;
 
     while (opcao != 0) {
         system("clear");
@@ -44,7 +51,7 @@ int main() {
         printf("\n1. Cadastrar DVD \n2. Buscar DVD \n3. Excluir DVD \n4. Imprimir todos os DVDs \n-----------------------------\n"
                "5. Cadastrar cliente \n6. Buscar cliente \n7. Excluir cliente \n8. Imprimir todos os clientes \n-----------------------------"
                "\n9. Alugar DVD\n10. Buscar locacao \n11. Imprimir todas as locacoes\n12. Devolver DVD\n---------------------------"
-               "\n13. SelectionSort\n14. Partition: Selecao Natural\n15. blablabal\n---------------------------\n0. Sair\n\nEscolha uma opcao: ");
+               "\n13. SelectionSort\n14. Arvore binaria de vencedores\n---------------------------\n0. Sair\n\nEscolha uma opcao: ");
         scanf("%d", &opcao);
         //fflush(arq);
 
@@ -58,7 +65,7 @@ int main() {
                 // Limpar o buffer, consumindo o caractere de nova linha remanescente
                 while (getchar() != '\n');
 
-                dvd->id_dvd = 30 + gerador_id_dvd;
+                dvd->id_dvd = TAM_DVD + gerador_id_dvd;
                 gerador_id_dvd++;
 
                 printf("ID: %d", dvd->id_dvd);
@@ -117,7 +124,7 @@ int main() {
                 // Limpar o buffer, consumindo o caractere de nova linha remanescente
                 while ((c = getchar()) != '\n' && c != EOF);
 
-                cliente->idC = 10 + gerador_id_cliente;
+                cliente->idC = TAM_CLIENTE + gerador_id_cliente;
                 gerador_id_cliente++;
 
                 printf("ID: %d", cliente->idC);
@@ -223,32 +230,32 @@ int main() {
                 imprimirBaseCliente(arqClientes);
                 break;
             case 14:
-                printf("\n********************** PARTICOES ORDENADAS: SELECAO NATURAL ************************\n");
+                printf("\n********************** ARVORE BINARIA DE VENCEDORES ************************\n");
 
                 imprimirBaseDvd(arqDvds);
                 //printf("\033[H\033[J");
 
-                printf("\n\n\n\n\n\n\n\n\n");
-                printf("\nAplicando metodo de particoes ordenadas DVD.......\n");
-                int tamArqDvd = tamanhoArquivoDvd(arqDvds, 0);
-                selecaoNatural(arqDvds, 30);
-                printf("\n\n\n\n\n\n\n\n\n");
+                printf("\n\n\n\n");
+                printf("\nAplicando metodo de arvore binaria de vencedores na base de DVDs.......\n");
+                int qtd = 1;
+                tamDvd = tamanhoArquivoDvd(arqDvds,0);
+                qtd += selecaoNatural(arqDvds, tamDvd);
+
+                arvoreBinariaVenc(qtd, &tempoExecucao);
+                FILE *logFile = fopen("log.txt", "a"); // Abre o arquivo de log em modo de acréscimo
+                if (logFile == NULL) {
+                    printf("Erro ao abrir arquivo de log\n");
+                    exit(1);
+                }
+
+
+                // Escrevendo no arquivo de log
+                fprintf(logFile, "Tempo de execucao: %f", tempoExecucao);
+                fclose(logFile);
 
                 imprimirBaseDvd(arqDvds);
-                printf("\n\n\n\n\n\n\n\n\n");
 
-                imprimirBaseCliente(arqClientes);
                 //printf("\033[H\033[J");
-
-                printf("\n\n\n\n\n\n\n\n\n");
-                printf("\nAplicando metodo de particoes ordenadas CLIENTES.......\n");
-                int tamArqCliente = tamanhoArquivoCliente(arqClientes, 0);
-                selecaoNatural(arqClientes, 10);
-                printf("\n\n\n\n\n\n\n\n\n");
-
-                imprimirBaseCliente(arqClientes);
-                printf("\n\n\n\n\n\n\n\n\n");
-
                 break;
             case 15:
                 break;
