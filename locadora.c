@@ -560,9 +560,21 @@ int tamanhoRegistroLocadora() {
            + sizeof(TCliente); //id_cliente
 }
 
-int tamanho_arquivo(FILE *arq) {
+int tamanho_arquivo_locadora(FILE *arq) {
     fseek(arq, 0, SEEK_END);
     int tam = trunc(ftell(arq) / tamanhoRegistroLocadora());
+    return tam;
+}
+
+int tamanho_arquivo_dvd(FILE *arq) {
+    fseek(arq, 0, SEEK_END);
+    int tam = trunc(ftell(arq) / tamanhoRegistroDvd());
+    return tam;
+}
+
+int tamanho_arquivo_cliente(FILE *arq) {
+    fseek(arq, 0, SEEK_END);
+    int tam = trunc(ftell(arq) / tamanhoRegistroCliente());
     return tam;
 }
 

@@ -33,8 +33,17 @@ typedef struct{
     FILE *filePartition;
 }TDvdFile;
 
+typedef struct{
+    TCliente *cliente;
+    long init_p;
+    long end_p;
+    FILE *filePartition;
+}TClienteFile;
+
 //int tamanho_registro();
 void shuffle(int *vet,int MAX,int MIN);
+int tamanho_arquivo_dvd(FILE *arq);
+int tamanho_arquivo_cliente(FILE *arq);
 
 //Cliente
 TCliente *criarCliente(int idC ,char *nomeC , char *dataNascimentoC, char *cpfC, char *telefoneC);
@@ -80,13 +89,12 @@ void criarBaseLocadora(FILE *arqLocadora, FILE *arqCliente, FILE *arqDvd, int ta
 void imprimirBaseLocadora(FILE *arqLocadora);
 
 TLocadora *buscaBinariaLocacao(int chave, FILE *in, int inicio, int fim, const char *nomeArquivoLog);
-//outros
+
 void dvdsDisponiveis(FILE *arq);
 
 void alugaDvd(int gerador_id_locadora, FILE *arqClientes, FILE *arqDvds, FILE *arqLocadora);
 void imprimirDvdAlugado(FILE *arq, FILE *arqD, FILE *arqC);
 void devolverDvd(FILE *arqDvds);
-void gerarParticoesOrdenadasDvd(FILE *arquivoEntrada, int tamanho, int tam_reservatorio);
 
 
 int excluiCliente(int chave, FILE *arqClientes);
@@ -96,7 +104,5 @@ int tamanhoRegistroLocadora();
 char* itoa(int value, char* result, int base);
 int tamanhoRegistroDvd();
 int tamanhoRegistroCliente();
-int tamanhoArquivoCliente(FILE *arq, int contSizeFile);
-int tamanhoArquivoDvd(FILE *arq, int contSizeFile);
 
 #endif
