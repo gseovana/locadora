@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+
 typedef struct{
     int idC;
     char nomeC[100];
@@ -25,6 +26,12 @@ typedef struct{
     TCliente clienteL;
 }TLocadora;
 
+typedef struct{
+    TDvd *dvd;
+    long init_p;
+    long end_p;
+    FILE *filePartition;
+}TDvdFile;
 
 //int tamanho_registro();
 void shuffle(int *vet,int MAX,int MIN);
@@ -86,7 +93,7 @@ int excluiCliente(int chave, FILE *arqClientes);
 
 int excluiDvd(int chave, FILE *arqDvds);
 int tamanhoRegistroLocadora();
-
+char* itoa(int value, char* result, int base);
 int tamanhoRegistroDvd();
 int tamanhoRegistroCliente();
 int tamanhoArquivoCliente(FILE *arq, int contSizeFile);

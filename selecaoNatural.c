@@ -4,29 +4,7 @@
 //#include "selecaoNatural.h"
 #include "locadora.h"
 
-char* itoa(int value, char* result, int base) {
-    // check that the base if valid
-    if (base < 2 || base > 36) { *result = '\0'; return result; }
 
-    char* ptr = result, *ptr1 = result, tmp_char;
-    int tmp_value;
-
-    do {
-        tmp_value = value;
-        value /= base;
-        *ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" [35 + (tmp_value - value * base)];
-    } while ( value );
-
-    // Apply negative sign
-    if (tmp_value < 0) *ptr++ = '-';
-    *ptr-- = '\0';
-    while(ptr1 < ptr) {
-        tmp_char = *ptr;
-        *ptr--= *ptr1;
-        *ptr1++ = tmp_char;
-    }
-    return result;
-}
 
 int selecaoNatural(FILE *arq, int tam) {
 
@@ -47,16 +25,21 @@ int selecaoNatural(FILE *arq, int tam) {
 
         FILE *arqReservatorio = fopen("reservatorio.dat", "wb+");
 
+        if (arqReservatorio == NULL) {
+            printf("ERRO AO ABRIR ARQUIVO");
+        }
+
         char nomeParticao[100];
         char nome1[100];
         char nome2[100] = ".dat";
 
         itoa(quantidadeParticoes, nome1, 10);
         strcat(strcpy(nomeParticao, "selecaoNatural"), nome1);
-        strcat(strcpy(nomeParticao, nomeParticao), nome2);
+        strcat(nomeParticao, nome2);
 
         FILE *arqParticao = fopen(nomeParticao, "wb+");
 
+        //preenche o vetor com registros do arquivo
         if (opc == 0) {
             for (int i = 0; i < 6; ++i) {
 
@@ -68,10 +51,10 @@ int selecaoNatural(FILE *arq, int tam) {
             }
         }
 
+        //fclose(arqReservatorio);
+
         while (!feof(arq)) {
-
             for (int i = 0; i < 6; ++i) {
-
                 if (auxDvdVet[i] < menor) {
                     menor = auxDvdVet[i];
                     posMenor = i;
@@ -110,8 +93,7 @@ int selecaoNatural(FILE *arq, int tam) {
         for (k = 1; k < 6; k++) {
 
             for (j = 0; j < 6 - 1; j++) {
-
-                if (dvd[j].id_dvd> dvd[j + 1].id_dvd) {
+                if (dvd[j].id_dvd > dvd[j + 1].id_dvd) {
                     aux = dvd[j];
                     dvd[j] = dvd[j + 1];
                     dvd[j + 1] = aux;
