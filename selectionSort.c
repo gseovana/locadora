@@ -56,7 +56,7 @@ void selectionSortDvd(FILE *arqD, int tam, FILE *logFile) {
     fflush(arqD);
 
     // Escrevendo no arquivo de log
-    fprintf(logFile, "SELECTION SORT DVD - Tempo de execucao: %f\nQuantidade comparacoes: %d", current_time.tv_usec, qntComp);
+    fprintf(logFile, "SELECTION SORT DVD - Tempo de execucao: %ld\nQuantidade comparacoes: %d", current_time.tv_usec, qntComp);
     //fclose(logFile);
 
 }
@@ -109,6 +109,6 @@ void selectionSortCliente(FILE *arqC, int tam, FILE *logFile) {
 
     // Descarrega o buffer para ter certeza que dados foram gravados
     fflush(arqC);
-    fprintf(logFile, "SELECTION SORT CLIENTE - Tempo de execucao: %f\nQuantidade comparacoes: %d", current_time.tv_usec, qntComp);
+    fprintf(logFile, "SELECTION SORT CLIENTE - Tempo de execucao: %ld\nQuantidade comparacoes: %d", current_time.tv_usec, qntComp);
     //fclose(logFile);
 }

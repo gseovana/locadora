@@ -252,7 +252,7 @@ int main() {
                 printf("\nAplicando metodo de arvore binaria de vencedores na base de clientes.......\n");
 
                 qtd = 1;
-                
+
                 qtd += selecaoNaturalCliente(arqClientes, tamanho_arquivo_cliente(arqClientes), logFile);
 
                 arvoreBinariaVencCliente(qtd, logFile);

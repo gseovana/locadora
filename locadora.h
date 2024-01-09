@@ -28,16 +28,16 @@ typedef struct{
 
 typedef struct{
     TDvd *dvd;
-    long init_p;
-    long end_p;
-    FILE *filePartition;
+    long init_pd;
+    long end_pd;
+    FILE *filePartitiond;
 }TDvdFile;
 
 typedef struct{
     TCliente *cliente;
-    long init_p;
-    long end_p;
-    FILE *filePartition;
+    long init_pc;
+    long end_pc;
+    FILE *filePartitionc;
 }TClienteFile;
 
 //int tamanho_registro();
