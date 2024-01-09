@@ -148,7 +148,7 @@ int selecaoNaturalDvd(FILE *arq, int tam, FILE *logFile) {
 
 }
 
-int selecaoNaturalCliente(FILE *arq, int tam, FILE *logFile) {
+int selecaoNaturalCliente(FILE *arqC, int tam, FILE *logFile) {
     struct timeval current_time;
     gettimeofday(&current_time, NULL);
 
@@ -163,13 +163,13 @@ int selecaoNaturalCliente(FILE *arq, int tam, FILE *logFile) {
 
     int auxClienteVet[6] = {0, 0, 0, 0, 0, 0};
 
-    rewind(arq);
+    rewind(arqC);
 
-    while (!feof(arq)) {
+    while (!feof(arqC)) {
 
-        FILE *arqReservatorio = fopen("reservatorioc.dat", "wb+");
+        FILE *arqReservatorioc = fopen("reservatorioc.dat", "wb+");
 
-        if (arqReservatorio == NULL) {
+        if (arqReservatorioc == NULL) {
             printf("ERRO AO ABRIR ARQUIVO");
         }
 
@@ -187,7 +187,7 @@ int selecaoNaturalCliente(FILE *arq, int tam, FILE *logFile) {
         if (opc == 0) {
             for (int i = 0; i < 6; ++i) {
 
-                TCliente *auxCliente = lerCliente(arq);
+                TCliente *auxCliente = lerCliente(arqC);
                 pos++;
 
                 cliente[i] = *auxCliente;
@@ -197,7 +197,7 @@ int selecaoNaturalCliente(FILE *arq, int tam, FILE *logFile) {
 
         //fclose(arqReservatorio);
 
-        while (!feof(arq)) {
+        while (!feof(arqC)) {
             for (int i = 0; i < 6; ++i) {
                 if (auxClienteVet[i] < menor) {
                     menor = auxClienteVet[i];
@@ -205,10 +205,10 @@ int selecaoNaturalCliente(FILE *arq, int tam, FILE *logFile) {
                 }
             }
 
-            TCliente *auxCliente = lerCliente(arq);
+            TCliente *auxCliente = lerCliente(arqC);
             pos++;
             if (auxCliente->idC < cliente[posMenor].idC) {
-                salvarCliente(auxCliente, arqReservatorio);
+                salvarCliente(auxCliente, arqReservatorioc);
                 tamReservatorio++;
 
                 if (tamReservatorio == 6) {
@@ -249,17 +249,17 @@ int selecaoNaturalCliente(FILE *arq, int tam, FILE *logFile) {
             salvarCliente(&cliente[i], arqParticao);
         }
 
-        rewind(arqReservatorio);
+        rewind(arqReservatorioc);
 
         for (int i = 0; i < tamReservatorio; ++i) {
-            TCliente *auxDvdReservatorio = lerCliente(arqReservatorio);
+            TCliente *auxDvdReservatorio = lerCliente(arqReservatorioc);
             cliente[i] = *auxDvdReservatorio;
             auxClienteVet[i] = auxDvdReservatorio->idC;
             opc = 1;
         }
 
 
-        fclose(arqReservatorio);
+        fclose(arqReservatorioc);
         fclose(arqParticao);
 
         if (pos >= tam) {

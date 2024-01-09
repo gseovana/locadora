@@ -58,7 +58,7 @@ void arvoreBinariaVencDvd(int qtdParticoes, FILE *logFile){
         dvdAux[i] = calloc(sizeof(TDvd), 1);
     }
 
-    FILE *arvoreBinaria = fopen("arvoreBinaria.dat", "wb+");
+    FILE *arvoreBinariad = fopen("arvoreBinariad.dat", "wb+");
 
     for (int i = 0; i < qtdParticoes; i++){
         auxArq[i].init_pd = 0;
@@ -68,10 +68,13 @@ void arvoreBinariaVencDvd(int qtdParticoes, FILE *logFile){
         char nome2[50] = ".dat";
 
         itoa(i, nome1, 10);
-        strcat(strcpy(nomeParticao, "slcNat"), nome1);
+        strcat(strcpy(nomeParticao, "selecaoNaturald"), nome1);
         strcat(strcpy(nomeParticao, nomeParticao), nome2);
 
-        auxArq[i].filePartitiond = fopen (nomeParticao, "rb+");
+        auxArq[i].filePartitiond = fopen(nomeParticao, "rb+");
+        if (auxArq[i].filePartitiond == NULL) {
+            fprintf(stderr, "Erro ao abrir o arquivo %s. Motivo: %s\n", nomeParticao, strerror(errno));
+        }
         fseek(auxArq[i].filePartitiond, 0 * sizeof(TDvd), SEEK_SET);
 
         if (aux+1 >= qtdParticoes){
@@ -81,7 +84,7 @@ void arvoreBinariaVencDvd(int qtdParticoes, FILE *logFile){
         auxArq[i].end_pd = 0;
     }
 
-    arvoreVencDvd(dvdAux, arvoreBinaria, tam, &arvoreAux);
+    arvoreVencDvd(dvdAux, arvoreBinariad, tam, &arvoreAux);
 
     while (flagAuxFinal < qtdParticoes){
         aux = tam - 1;
@@ -101,7 +104,7 @@ void arvoreBinariaVencDvd(int qtdParticoes, FILE *logFile){
                     if (dvdAux[j]->id_dvd == menor->id_dvd) dvdAux[j]->id_dvd = 15000;
                 }
 
-                arvoreVencDvd(dvdAux, arvoreBinaria, tam, &arvoreAux);
+                arvoreVencDvd(dvdAux, arvoreBinariad, tam, &arvoreAux);
             } else {
                 *menor = *dvdAux[0];
 
@@ -112,7 +115,7 @@ void arvoreBinariaVencDvd(int qtdParticoes, FILE *logFile){
                         fseek (auxArq[i].filePartitiond, auxArq[i].init_pd * sizeof(TDvd), SEEK_SET);
                         free(dvdAux[aux]);
                         dvdAux[aux] = lerDvd(auxArq[i].filePartitiond);
-                        arvoreVencDvd(dvdAux, arvoreBinaria, tam, &arvoreAux);
+                        arvoreVencDvd(dvdAux, arvoreBinariad, tam, &arvoreAux);
                     }
                 }
                 aux--;
@@ -131,8 +134,8 @@ void arvoreBinariaVencDvd(int qtdParticoes, FILE *logFile){
     free(dvdAux);
     free(menor);
     free(auxArq);
-    imprimirBaseDvd(arvoreBinaria);
-    fclose(arvoreBinaria);
+    imprimirBaseDvd(arvoreBinariad);
+    fclose(arvoreBinariad);
 
     fprintf(logFile, "ARVORE BINARIA VENCEDORES DVD - Tempo de execucao: %ld", current_time.tv_usec);
 
@@ -145,16 +148,16 @@ void arvoreVencCliente(TCliente **cliente, FILE *arqC, int tam, int *arvoreAux) 
 
         if (i % 2 != 0 && i == tam - 1){
             aux = (i - 1) / 2;
-            (*cliente[aux]) = (*cliente[i]);
+            *cliente[aux] = *cliente[i];
         }
         else{
             if (i % 2 == 0 && cliente[i]->idC < cliente[i-1]->idC){
                 aux = (i - 2) / 2;
-                (*cliente[aux]) = (*cliente[i]);
+                *cliente[aux] = *cliente[i];
             }
             else if (i % 2 == 0 && cliente[i-1]->idC < cliente[i]->idC){
                 aux = (i - 2) / 2;
-                (*cliente[aux]) = (*cliente[i - 1]);
+                *cliente[aux] = *cliente[i - 1];
             }
         }
     }
@@ -187,6 +190,7 @@ void arvoreBinariaVencCliente(int qtdParticoes, FILE *logFile){
     TCliente *menor = calloc(sizeof(*menor), 1);
     TCliente **clienteAux = calloc(sizeof(**clienteAux), tam);
 
+    int indexCliente = tam - 1;
     for (int i = 0; i < auxQtdParticoes; i++){
         clienteAux[i] = calloc(sizeof(TCliente), 1);
     }
@@ -201,13 +205,12 @@ void arvoreBinariaVencCliente(int qtdParticoes, FILE *logFile){
         char nome2[50] = ".dat";
 
         itoa(i, nome1, 10);
-        strcat(strcpy(nomeParticaoc, "slcNatC"), nome1);
+        strcat(strcpy(nomeParticaoc, "selecaoNaturalc"), nome1);
         strcat(strcpy(nomeParticaoc, nomeParticaoc), nome2);
 
         auxArq[i].filePartitionc = fopen(nomeParticaoc, "rb+");
         if (auxArq[i].filePartitionc == NULL) {
             fprintf(stderr, "Erro ao abrir o arquivo %s. Motivo: %s\n", nomeParticaoc, strerror(errno));
-            // Lide com o erro conforme necessário
         }
 
         fseek(auxArq[i].filePartitionc, 0 * sizeof(TCliente), SEEK_SET);
