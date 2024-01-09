@@ -384,7 +384,7 @@ void criarBaseLocadora(FILE *arqLocadora, FILE *arqCliente, FILE *arqDvd, int ta
     }
 
     free(locadora);
-    //free(cliente);
+    free(cliente);
     free(dvd);
 }
 
