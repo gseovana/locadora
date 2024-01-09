@@ -24,7 +24,7 @@ int selecaoNaturalDvd(FILE *arq, int tam, FILE *logFile) {
 
     while (!feof(arq)) {
 
-        FILE *arqReservatorio = fopen("reservatorio.dat", "wb+");
+        FILE *arqReservatorio = fopen("reservatoriod.dat", "wb+");
 
         if (arqReservatorio == NULL) {
             printf("ERRO AO ABRIR ARQUIVO");
@@ -35,7 +35,7 @@ int selecaoNaturalDvd(FILE *arq, int tam, FILE *logFile) {
         char nome2[100] = ".dat";
 
         itoa(quantidadeParticoes, nome1, 10);
-        strcat(strcpy(nomeParticao, "selecaoNatural"), nome1);
+        strcat(strcpy(nomeParticao, "selecaoNaturald"), nome1);
         strcat(nomeParticao, nome2);
 
         FILE *arqParticao = fopen(nomeParticao, "wb+");
@@ -135,14 +135,14 @@ int selecaoNaturalDvd(FILE *arq, int tam, FILE *logFile) {
         char str2[100] = ".dat";
 
         itoa(i, str1, 10);
-        strcat(strcpy(nomeParticao, "selecaoNatural"), str1);
+        strcat(strcpy(nomeParticao, "selecaoNaturald"), str1);
         strcat(strcpy(nomeParticao, nomeParticao), str2);
 
         FILE *arqParticao = fopen(nomeParticao, "rb+");
         fclose(arqParticao);
     }
 
-    fprintf(logFile, "SELECAO NATURAL DVD - Tempo de execucao: %f", current_time.tv_usec);
+    fprintf(logFile, "SELECAO NATURAL DVD - Tempo de execucao: %ld", current_time.tv_usec);
     //fclose(logFile);
     return quantidadeParticoes;
 
@@ -167,7 +167,7 @@ int selecaoNaturalCliente(FILE *arq, int tam, FILE *logFile) {
 
     while (!feof(arq)) {
 
-        FILE *arqReservatorio = fopen("reservatorio.dat", "wb+");
+        FILE *arqReservatorio = fopen("reservatorioc.dat", "wb+");
 
         if (arqReservatorio == NULL) {
             printf("ERRO AO ABRIR ARQUIVO");
@@ -178,7 +178,7 @@ int selecaoNaturalCliente(FILE *arq, int tam, FILE *logFile) {
         char nome2[100] = ".dat";
 
         itoa(quantidadeParticoes, nome1, 10);
-        strcat(strcpy(nomeParticao, "selecaoNatural"), nome1);
+        strcat(strcpy(nomeParticao, "selecaoNaturalc"), nome1);
         strcat(nomeParticao, nome2);
 
         FILE *arqParticao = fopen(nomeParticao, "wb+");
@@ -278,14 +278,14 @@ int selecaoNaturalCliente(FILE *arq, int tam, FILE *logFile) {
         char str2[100] = ".dat";
 
         itoa(i, str1, 10);
-        strcat(strcpy(nomeParticao, "selecaoNatural"), str1);
+        strcat(strcpy(nomeParticao, "selecaoNaturalc"), str1);
         strcat(strcpy(nomeParticao, nomeParticao), str2);
 
         FILE *arqParticao = fopen(nomeParticao, "rb+");
         fclose(arqParticao);
     }
 
-    fprintf(logFile, "SELECAO NATURAL CLIENTE: Tempo de execucao: %f", current_time.tv_usec);
+    fprintf(logFile, "SELECAO NATURAL CLIENTE: Tempo de execucao: %ld", current_time.tv_usec);
     //fclose(logFile);
 
     return quantidadeParticoes;

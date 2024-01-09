@@ -90,17 +90,17 @@ void salvarCliente(TCliente *cliente, FILE *arq){
     fwrite(cliente->telefoneC, sizeof(char), sizeof(cliente->telefoneC), arq);
 }
 
-TCliente *lerCliente(FILE *arq){
+TCliente *lerCliente(FILE *arqC){
     TCliente *cliente = (TCliente *) malloc(sizeof(TCliente));
 
-    if (0 >= fread(&cliente->idC, sizeof(int), 1, arq)) {
+    if (0 >= fread(&cliente->idC, sizeof(int), 1, arqC)) {
         free(cliente);
         return NULL;
     }
-    fread(cliente->nomeC, sizeof(char), sizeof(cliente->nomeC), arq);
-    fread(cliente->dataNascimentoC, sizeof(char), sizeof(cliente->dataNascimentoC), arq);
-    fread(cliente->cpfC, sizeof(char), sizeof(cliente->cpfC), arq);
-    fread(cliente->telefoneC, sizeof(char), sizeof(cliente->telefoneC), arq);
+    fread(cliente->nomeC, sizeof(char), sizeof(cliente->nomeC), arqC);
+    fread(cliente->dataNascimentoC, sizeof(char), sizeof(cliente->dataNascimentoC), arqC);
+    fread(cliente->cpfC, sizeof(char), sizeof(cliente->cpfC), arqC);
+    fread(cliente->telefoneC, sizeof(char), sizeof(cliente->telefoneC), arqC);
 
     return cliente;
 
@@ -376,7 +376,7 @@ void criarBaseLocadora(FILE *arqLocadora, FILE *arqCliente, FILE *arqDvd, int ta
         //faz a busca sequencial de alguns clientes para criar a base de locacao
         cliente = buscaSequencialCliente(i+3, arqCliente, "clientes-log.txt");
 
-        if(dvd  != NULL && cliente != NULL) {
+        if(dvd != NULL && cliente != NULL) {
             locadora = criarLocadora(i+1, *dvd, *cliente);
             salvarLocadora(locadora, arqLocadora);
         }
@@ -384,6 +384,8 @@ void criarBaseLocadora(FILE *arqLocadora, FILE *arqCliente, FILE *arqDvd, int ta
     }
 
     free(locadora);
+    //free(cliente);
+    free(dvd);
 }
 
 void imprimirBaseLocadora(FILE *arqLocadora){

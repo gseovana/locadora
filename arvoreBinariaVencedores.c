@@ -3,8 +3,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
-void arvoreVencDvd(TDvd **dvd, FILE *arq, int tam, int *arvoreAux) {
+void arvoreVencDvd(TDvd **dvd, FILE *arqD, int tam, int *arvoreAux) {
     int aux;
 
     for (int i = tam - 1; i > 0; i--){
@@ -25,34 +26,10 @@ void arvoreVencDvd(TDvd **dvd, FILE *arq, int tam, int *arvoreAux) {
         }
     }
 
-    salvarDvd(dvd[0], arq);
+    salvarDvd(dvd[0], arqD);
     *arvoreAux +=1;
 }
 
-void arvoreVencCliente(TCliente **cliente, FILE *arq, int tam, int *arvoreAux) {
-    int aux;
-
-    for (int i = tam - 1; i > 0; i--){
-
-        if (i % 2 != 0 && i == tam - 1){
-            aux = (i - 1) / 2;
-            *cliente[aux] = *cliente[i];
-        }
-        else{
-            if (i % 2 == 0 && cliente[i]->idC < cliente[i-1]->idC){
-                aux = (i - 2) / 2;
-                *cliente[aux] = *cliente[i];
-            }
-            else if (i % 2 == 0 && cliente[i-1]->idC < cliente[i]->idC){
-                aux = (i - 2) / 2;
-                *cliente[aux] = *cliente[i - 1];
-            }
-        }
-    }
-
-    salvarCliente(cliente[0], arq);
-    *arvoreAux +=1;
-}
 
 void arvoreBinariaVencDvd(int qtdParticoes, FILE *logFile){
     struct timeval current_time;
@@ -84,7 +61,7 @@ void arvoreBinariaVencDvd(int qtdParticoes, FILE *logFile){
     FILE *arvoreBinaria = fopen("arvoreBinaria.dat", "wb+");
 
     for (int i = 0; i < qtdParticoes; i++){
-        auxArq[i].init_p = 0;
+        auxArq[i].init_pd = 0;
 
         char nomeParticao[100];
         char nome1[50];
@@ -94,14 +71,14 @@ void arvoreBinariaVencDvd(int qtdParticoes, FILE *logFile){
         strcat(strcpy(nomeParticao, "slcNat"), nome1);
         strcat(strcpy(nomeParticao, nomeParticao), nome2);
 
-        auxArq[i].filePartition = fopen (nomeParticao, "rb+");
-        fseek(auxArq[i].filePartition, 0 * sizeof(TDvd), SEEK_SET);
+        auxArq[i].filePartitiond = fopen (nomeParticao, "rb+");
+        fseek(auxArq[i].filePartitiond, 0 * sizeof(TDvd), SEEK_SET);
 
         if (aux+1 >= qtdParticoes){
-            dvdAux[aux] = lerDvd(auxArq[i].filePartition);
+            dvdAux[aux] = lerDvd(auxArq[i].filePartitiond);
             aux--;
         }
-        auxArq[i].end_p = 0;
+        auxArq[i].end_pd = 0;
     }
 
     arvoreVencDvd(dvdAux, arvoreBinaria, tam, &arvoreAux);
@@ -111,9 +88,9 @@ void arvoreBinariaVencDvd(int qtdParticoes, FILE *logFile){
 
         for (int i = 0; i < qtdParticoes; i++){
 
-            if (fgetc(auxArq[i].filePartition) == EOF && auxArq[i].end_p == 0 && menor->id_dvd == dvdAux[aux]->id_dvd){
+            if (fgetc(auxArq[i].filePartitiond) == EOF && auxArq[i].end_pd == 0 && menor->id_dvd == dvdAux[aux]->id_dvd){
                 flagAuxFinal++;
-                auxArq[i].end_p = 1;
+                auxArq[i].end_pd = 1;
                 i--;
 
                 if (flagAuxFinal == qtdParticoes) {
@@ -128,13 +105,13 @@ void arvoreBinariaVencDvd(int qtdParticoes, FILE *logFile){
             } else {
                 *menor = *dvdAux[0];
 
-                if (menor->id_dvd == dvdAux[aux]->id_dvd && auxArq[i].end_p == 0){
-                    auxArq[i].init_p += 1;
+                if (menor->id_dvd == dvdAux[aux]->id_dvd && auxArq[i].end_pd == 0){
+                    auxArq[i].init_pd += 1;
 
-                    if (fgetc(auxArq[i].filePartition) != EOF){
-                        fseek (auxArq[i].filePartition, auxArq[i].init_p * sizeof(TDvd), SEEK_SET);
+                    if (fgetc(auxArq[i].filePartitiond) != EOF){
+                        fseek (auxArq[i].filePartitiond, auxArq[i].init_pd * sizeof(TDvd), SEEK_SET);
                         free(dvdAux[aux]);
-                        dvdAux[aux] = lerDvd(auxArq[i].filePartition);
+                        dvdAux[aux] = lerDvd(auxArq[i].filePartitiond);
                         arvoreVencDvd(dvdAux, arvoreBinaria, tam, &arvoreAux);
                     }
                 }
@@ -144,7 +121,7 @@ void arvoreBinariaVencDvd(int qtdParticoes, FILE *logFile){
     }
 
     for (int i = 0; i < qtdParticoes; i++) {
-        fclose(auxArq[i].filePartition);
+        fclose(auxArq[i].filePartitiond);
     }
 
     for (int i = 0; i < tam; i++){
@@ -157,9 +134,35 @@ void arvoreBinariaVencDvd(int qtdParticoes, FILE *logFile){
     imprimirBaseDvd(arvoreBinaria);
     fclose(arvoreBinaria);
 
-    fprintf(logFile, "ARVORE BINARIA VENCEDORES DVD - Tempo de execucao: %f", current_time.tv_usec);
+    fprintf(logFile, "ARVORE BINARIA VENCEDORES DVD - Tempo de execucao: %ld", current_time.tv_usec);
 
 }
+
+void arvoreVencCliente(TCliente **cliente, FILE *arqC, int tam, int *arvoreAux) {
+    int aux;
+
+    for (int i = tam - 1; i > 0; i--){
+
+        if (i % 2 != 0 && i == tam - 1){
+            aux = (i - 1) / 2;
+            (*cliente[aux]) = (*cliente[i]);
+        }
+        else{
+            if (i % 2 == 0 && cliente[i]->idC < cliente[i-1]->idC){
+                aux = (i - 2) / 2;
+                (*cliente[aux]) = (*cliente[i]);
+            }
+            else if (i % 2 == 0 && cliente[i-1]->idC < cliente[i]->idC){
+                aux = (i - 2) / 2;
+                (*cliente[aux]) = (*cliente[i - 1]);
+            }
+        }
+    }
+
+    salvarCliente(cliente[0], arqC);
+    *arvoreAux +=1;
+}
+
 
 void arvoreBinariaVencCliente(int qtdParticoes, FILE *logFile){
     struct timeval current_time;
@@ -188,39 +191,45 @@ void arvoreBinariaVencCliente(int qtdParticoes, FILE *logFile){
         clienteAux[i] = calloc(sizeof(TCliente), 1);
     }
 
-    FILE *arvoreBinariaC = fopen("arvoreBinariaC.dat", "wb+");
+    FILE *arvoreBinariac = fopen("arvoreBinariac.dat", "wb+");
 
     for (int i = 0; i < qtdParticoes; i++){
-        auxArq[i].init_p = 0;
+        auxArq[i].init_pc = 0;
 
-        char nomeParticao[100];
+        char nomeParticaoc[100];
         char nome1[50];
         char nome2[50] = ".dat";
 
         itoa(i, nome1, 10);
-        strcat(strcpy(nomeParticao, "slcNat"), nome1);
-        strcat(strcpy(nomeParticao, nomeParticao), nome2);
+        strcat(strcpy(nomeParticaoc, "slcNatC"), nome1);
+        strcat(strcpy(nomeParticaoc, nomeParticaoc), nome2);
 
-        auxArq[i].filePartition = fopen (nomeParticao, "rb+");
-        fseek(auxArq[i].filePartition, 0 * sizeof(TCliente), SEEK_SET);
+        auxArq[i].filePartitionc = fopen(nomeParticaoc, "rb+");
+        if (auxArq[i].filePartitionc == NULL) {
+            fprintf(stderr, "Erro ao abrir o arquivo %s. Motivo: %s\n", nomeParticaoc, strerror(errno));
+            // Lide com o erro conforme necessário
+        }
+
+        fseek(auxArq[i].filePartitionc, 0 * sizeof(TCliente), SEEK_SET);
 
         if (aux+1 >= qtdParticoes){
-            clienteAux[aux] = lerCliente(auxArq[i].filePartition);
+            //free(clienteAux);
+            clienteAux[aux] = lerCliente(auxArq[i].filePartitionc);
             aux--;
         }
-        auxArq[i].end_p = 0;
+        auxArq[i].end_pc = 0;
     }
 
-    arvoreVencCliente(clienteAux, arvoreBinariaC, tam, &arvoreAux);
+    arvoreVencCliente(clienteAux, arvoreBinariac, tam, &arvoreAux);
 
     while (flagAuxFinal < qtdParticoes){
         aux = tam - 1;
 
         for (int i = 0; i < qtdParticoes; i++){
 
-            if (fgetc(auxArq[i].filePartition) == EOF && auxArq[i].end_p == 0 && menor->idC == clienteAux[aux]->idC){
+            if (fgetc(auxArq[i].filePartitionc) == EOF && auxArq[i].end_pc == 0 && menor->idC == clienteAux[aux]->idC){
                 flagAuxFinal++;
-                auxArq[i].end_p = 1;
+                auxArq[i].end_pc = 1;
                 i--;
 
                 if (flagAuxFinal == qtdParticoes) {
@@ -231,18 +240,18 @@ void arvoreBinariaVencCliente(int qtdParticoes, FILE *logFile){
                     if (clienteAux[j]->idC == menor->idC) clienteAux[j]->idC = 15000;
                 }
 
-                arvoreVencCliente(clienteAux, arvoreBinariaC, tam, &arvoreAux);
+                arvoreVencCliente(clienteAux, arvoreBinariac, tam, &arvoreAux);
             } else {
                 *menor = *clienteAux[0];
 
-                if (menor->idC == clienteAux[aux]->idC && auxArq[i].end_p == 0){
-                    auxArq[i].init_p += 1;
+                if (menor->idC == clienteAux[aux]->idC && auxArq[i].end_pc == 0){
+                    auxArq[i].init_pc += 1;
 
-                    if (fgetc(auxArq[i].filePartition) != EOF){
-                        fseek (auxArq[i].filePartition, auxArq[i].init_p * sizeof(TCliente), SEEK_SET);
+                    if (fgetc(auxArq[i].filePartitionc) != EOF){
+                        fseek (auxArq[i].filePartitionc, auxArq[i].init_pc * sizeof(TCliente), SEEK_SET);
                         free(clienteAux[aux]);
-                        clienteAux[aux] = lerCliente(auxArq[i].filePartition);
-                        arvoreVencCliente(clienteAux, arvoreBinariaC, tam, &arvoreAux);
+                        clienteAux[aux] = lerCliente(auxArq[i].filePartitionc);
+                        arvoreVencCliente(clienteAux, arvoreBinariac, tam, &arvoreAux);
                     }
                 }
                 aux--;
@@ -251,7 +260,7 @@ void arvoreBinariaVencCliente(int qtdParticoes, FILE *logFile){
     }
 
     for (int i = 0; i < qtdParticoes; i++) {
-        fclose(auxArq[i].filePartition);
+        fclose(auxArq[i].filePartitionc);
     }
 
     for (int i = 0; i < tam; i++){
@@ -261,9 +270,9 @@ void arvoreBinariaVencCliente(int qtdParticoes, FILE *logFile){
     free(clienteAux);
     free(menor);
     free(auxArq);
-    imprimirBaseCliente(arvoreBinariaC);
-    fclose(arvoreBinariaC);
-    fprintf(logFile, "ARVORE BINARIA VENCEDORES CLIENTE - Tempo de execucao: %f", current_time.tv_usec);
-    //fclose(logFile);
-    //*tempoExecucao = current_time.tv_usec;
+    imprimirBaseCliente(arvoreBinariac);
+    fclose(arvoreBinariac);
+
+    fprintf(logFile, "ARVORE BINARIA VENCEDORES CLIENTE - Tempo de execucao: %ld", current_time.tv_usec);
+
 }
