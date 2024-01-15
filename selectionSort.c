@@ -5,12 +5,18 @@
 #include "locadora.h"
 #include "selectionSort.h"
 #include <sys/time.h>
+#include <time.h>
 
-void selectionSortDvd(FILE *arqD, int tam, FILE *logFile) {
-    struct timeval current_time;
-    gettimeofday(&current_time, NULL);
+void selectionSortDvd(FILE *arqD, int tam, FILE *logFileDvd) {
+    struct timespec inicioTime, fimTime;
+    double tempoGasto;
+    clock_t inicioClock, fimClock;
 
     int i, j, min_idx, qntComp = 0;
+
+
+    clock_gettime(CLOCK_MONOTONIC, &inicioTime);
+
 
     for (i = 1; i <= tam - 1; i++) {
         // Assume que o elemento atual é o mínimo
@@ -56,16 +62,23 @@ void selectionSortDvd(FILE *arqD, int tam, FILE *logFile) {
     fflush(arqD);
 
     // Escrevendo no arquivo de log
-    fprintf(logFile, "SELECTION SORT DVD - Tempo de execucao: %ld\nQuantidade comparacoes: %d", current_time.tv_usec, qntComp);
-    //fclose(logFile);
+    clock_gettime(CLOCK_MONOTONIC, &fimTime);
+    tempoGasto = (fimTime.tv_sec - inicioTime.tv_sec) * 1000.0; // seconds to milliseconds
+    tempoGasto += (fimTime.tv_nsec - inicioTime.tv_nsec) / 1000000.0; // nanoseconds to milliseconds
+
+    // Escrevendo no arquivo de log
+    fprintf(logFileDvd, "SELECTION SORT DVD - Tempo de execucao em milissegundos: %f\nQuantidade comparacoes: %d\n", tempoGasto, qntComp);
+    fclose(logFileDvd);
 
 }
 
-void selectionSortCliente(FILE *arqC, int tam, FILE *logFile) {
-    struct timeval current_time;
-    gettimeofday(&current_time, NULL);
-
+void selectionSortCliente(FILE *arqC, int tam, FILE *logFileCliente) {
+    struct timespec inicioTime, fimTime;
+    double tempoGasto;
+    clock_t inicioClock, fimClock;
     int i, j, min_idx, qntComp = 0;
+
+    clock_gettime(CLOCK_MONOTONIC, &inicioTime);
 
     for (i = 1; i <= tam - 1; i++) {
         // Assume que o elemento atual é o mínimo
@@ -109,6 +122,10 @@ void selectionSortCliente(FILE *arqC, int tam, FILE *logFile) {
 
     // Descarrega o buffer para ter certeza que dados foram gravados
     fflush(arqC);
-    fprintf(logFile, "SELECTION SORT CLIENTE - Tempo de execucao: %ld\nQuantidade comparacoes: %d", current_time.tv_usec, qntComp);
-    //fclose(logFile);
+    clock_gettime(CLOCK_MONOTONIC, &fimTime);
+    tempoGasto = (fimTime.tv_sec - inicioTime.tv_sec) * 1000.0; // seconds to milliseconds
+    tempoGasto += (fimTime.tv_nsec - inicioTime.tv_nsec) / 1000000.0; // nanoseconds to milliseconds
+
+    fprintf(logFileCliente, "SELECTION SORT CLIENTE - Tempo de execucao em milissegundos: %f\nQuantidade comparacoes: %d\n", tempoGasto, qntComp);
+    fclose(logFileCliente);
 }
