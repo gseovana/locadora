@@ -5,12 +5,12 @@
 #include "selecaoNatural.h"
 #include "arvoreBinariaVencedores.h"
 
-#define TAM_CLIENTE 10
-#define TAM_DVD 30
+#define TAM_CLIENTE 50
+#define TAM_DVD 300
 #define TAM_LOCADORA 4
 int main() {
 
-    FILE *arqClientes, *arqDvds, *arqLocadora, *logFile;
+    FILE *arqClientes, *arqDvds, *arqLocadora, *logFileDvd, *logFileCliente, *logSelecaoDvd, *logSelecaoCliente, *logArvoreVencDvd, *logArvoreVencCliente;
     TCliente *cliente;
     TDvd *dvd;
     TLocadora *locacao;
@@ -31,7 +31,32 @@ int main() {
         exit(1);
     }
 
-    if ((logFile = fopen("log.txt", "w")) == NULL) {
+    if ((logFileDvd = fopen("logSelectionSortDvd.txt", "w")) == NULL) {
+        printf("Erro ao abrir arquivo\n");
+        exit(1);
+    }
+
+    if ((logFileCliente = fopen("logSelectionSortCliente.txt", "w")) == NULL) {
+        printf("Erro ao abrir arquivo\n");
+        exit(1);
+    }
+
+    if ((logSelecaoDvd = fopen("logSelecaoDVD.txt", "w")) == NULL) {
+        printf("Erro ao abrir arquivo\n");
+        exit(1);
+    }
+
+    if ((logSelecaoCliente = fopen("logSelecaoCliente.txt", "w")) == NULL) {
+        printf("Erro ao abrir arquivo\n");
+        exit(1);
+    }
+
+    if ((logArvoreVencDvd = fopen("logArvoreDVD.txt", "w")) == NULL) {
+        printf("Erro ao abrir arquivo\n");
+        exit(1);
+    }
+
+    if ((logArvoreVencCliente = fopen("logArvoreCliente.txt", "w")) == NULL) {
         printf("Erro ao abrir arquivo\n");
         exit(1);
     }
@@ -218,7 +243,7 @@ int main() {
 
                 printf("\nAplicando SelectionSort na base de DVDs.......\n");
                 printf("\n\n\n\n\n\n\n\n\n");
-                selectionSortDvd(arqDvds, TAM_DVD, logFile);
+                selectionSortDvd(arqDvds, TAM_DVD, logFileDvd);
 
                 imprimirBaseDvd(arqDvds);
                 //printf("\033[H\033[J");
@@ -228,7 +253,7 @@ int main() {
 
                 printf("\nAplicando SelectionSort na base de clientes.......\n");
                 printf("\n\n\n\n\n\n\n\n\n");
-                selectionSortCliente(arqClientes, TAM_CLIENTE, logFile);
+                selectionSortCliente(arqClientes, TAM_CLIENTE, logFileCliente);
 
                 imprimirBaseCliente(arqClientes);
                 break;
@@ -242,9 +267,9 @@ int main() {
                 printf("\nAplicando metodo de arvore binaria de vencedores na base de DVDs.......\n");
                 int qtd = 1;
 
-                qtd += selecaoNaturalDvd(arqDvds, tamanho_arquivo_dvd(arqDvds), logFile);
+                qtd += selecaoNaturalDvd(arqDvds, tamanho_arquivo_dvd(arqDvds), logSelecaoDvd);
 
-                arvoreBinariaVencDvd(qtd, logFile);
+                arvoreBinariaVencDvd(qtd, logArvoreVencDvd);
                 printf("\n\n\n\n");
 
                 imprimirBaseCliente(arqClientes);
@@ -253,9 +278,9 @@ int main() {
 
                 qtd = 1;
 
-                qtd += selecaoNaturalCliente(arqClientes, tamanho_arquivo_cliente(arqClientes), logFile);
+                qtd += selecaoNaturalCliente(arqClientes, tamanho_arquivo_cliente(arqClientes), logSelecaoCliente);
 
-                arvoreBinariaVencCliente(qtd, logFile);
+                arvoreBinariaVencCliente(qtd, logArvoreVencCliente);
 
                 //printf("\033[H\033[J");
                 break;
