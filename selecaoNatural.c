@@ -54,27 +54,27 @@ int selecaoNaturalDvd(FILE *arq, int tam, FILE *logFile) {
 
         //fclose(arqReservatorio);
 
-        while (!feof(arq)) {
+        while (!feof(arq)) { // RODA ENQUANTO TIVER REGSTRO NO ARQUIVO
             for (int i = 0; i < 6; ++i) {
-                if (auxDvdVet[i] < menor) {
+                if (auxDvdVet[i] < menor) { //encontra o menor id do dvd no array q contem os dados
                     menor = auxDvdVet[i];
                     posMenor = i;
                 }
             }
 
-            TDvd *auxDvd = lerDvd(arq);
+            TDvd *auxDvd = lerDvd(arq); //le um novo dvd do arquivo e coloca no array
             pos++;
-            if (auxDvd->id_dvd < dvd[posMenor].id_dvd) {
+            if (auxDvd->id_dvd < dvd[posMenor].id_dvd) { //se o registro lido for menor que o menor vai pro RESERVATORIO
                 salvarDvd(auxDvd, arqReservatorio);
                 tamReservatorio++;
 
-                if (tamReservatorio == 6) {
+                if (tamReservatorio == 6) { //se o reservatorio tiver cheio para
 
                     break;
                 }
 
             } else {
-                salvarDvd(&dvd[posMenor], arqParticao);
+                salvarDvd(&dvd[posMenor], arqParticao);  //se o registro lido for maior qu o menor, vai pra particao ordenada
                 auxDvdVet[posMenor] = auxDvd->id_dvd;
                 dvd[posMenor] = *auxDvd;
             }
@@ -91,7 +91,7 @@ int selecaoNaturalDvd(FILE *arq, int tam, FILE *logFile) {
 
         int k, j;
 
-        for (k = 1; k < 6; k++) {
+        for (k = 1; k < 6; k++) {  //BUBBLE SORT ordena os dvds no array
 
             for (j = 0; j < 6 - 1; j++) {
                 if (dvd[j].id_dvd > dvd[j + 1].id_dvd) {
@@ -103,12 +103,12 @@ int selecaoNaturalDvd(FILE *arq, int tam, FILE *logFile) {
         }
 
         for (int i = 0; i < 6; ++i) {
-            salvarDvd(&dvd[i], arqParticao);
+            salvarDvd(&dvd[i], arqParticao);  //salva os dvds ordenados no arquivo de particao
         }
 
-        rewind(arqReservatorio);
+        rewind(arqReservatorio); //volta com o cursor pro inicio do reservatorio
 
-        for (int i = 0; i < tamReservatorio; ++i) {
+        for (int i = 0; i < tamReservatorio; ++i) { //passa os dvds do reservatorio de volta para o array
             TDvd *auxDvdReservatorio = lerDvd(arqReservatorio);
             dvd[i] = *auxDvdReservatorio;
             auxDvdVet[i] = auxDvdReservatorio->id_dvd;
@@ -128,7 +128,7 @@ int selecaoNaturalDvd(FILE *arq, int tam, FILE *logFile) {
 
     }
 
-    for (int i = 0; i <= quantidadeParticoes; ++i) {
+    for (int i = 0; i <= quantidadeParticoes; ++i) { //proxima particao
 
         char nomeParticao[100];
         char str1[100];
@@ -142,6 +142,8 @@ int selecaoNaturalDvd(FILE *arq, int tam, FILE *logFile) {
         fclose(arqParticao);
     }
 
+
+    //escreve no arquivo de log
     fprintf(logFile, "SELECAO NATURAL DVD - Tempo de execucao: %ld", current_time.tv_usec);
     //fclose(logFile);
     return quantidadeParticoes;

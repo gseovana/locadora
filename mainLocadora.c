@@ -4,13 +4,14 @@
 #include "selectionSort.h"
 #include "selecaoNatural.h"
 #include "arvoreBinariaVencedores.h"
+#include "hash.h"
 
-#define TAM_CLIENTE 50
 #define TAM_DVD 300
+#define TAM_CLIENTE 100
 #define TAM_LOCADORA 4
 int main() {
 
-    FILE *arqClientes, *arqDvds, *arqLocadora, *logFileDvd, *logFileCliente, *logSelecaoDvd, *logSelecaoCliente, *logArvoreVencDvd, *logArvoreVencCliente;
+    FILE *arqClientes, *arqDvds, *arqLocadora, *arqHash, *logFileDvd, *logFileCliente, *logSelecaoDvd, *logSelecaoCliente, *logArvoreVencDvd, *logArvoreVencCliente;
     TCliente *cliente;
     TDvd *dvd;
     TLocadora *locacao;
@@ -61,14 +62,19 @@ int main() {
         exit(1);
     }
 
+    if ((arqHash = fopen("hashTable.dat", "w+b")) == NULL) {
+        printf("Erro ao abrir arquivo\n");
+        exit(1);
+    }
+
     criarBaseDvd(arqDvds, TAM_DVD);
     criarBaseCliente(arqClientes, TAM_CLIENTE);
     criarBaseLocadora(arqLocadora, arqClientes, arqDvds, TAM_LOCADORA);
 
     int gerador_id_locadora = 1,
-        opcao = -1,
-        gerador_id_dvd = 0,
-        gerador_id_cliente = 0,c;
+            opcao = -1,
+            gerador_id_dvd = 0,
+            gerador_id_cliente = 0, c;
 
 
     while (opcao != 0) {
@@ -77,7 +83,7 @@ int main() {
         printf("\n1. Cadastrar DVD \n2. Buscar DVD \n3. Excluir DVD \n4. Imprimir todos os DVDs \n-----------------------------\n"
                "5. Cadastrar cliente \n6. Buscar cliente \n7. Excluir cliente \n8. Imprimir todos os clientes \n-----------------------------"
                "\n9. Alugar DVD\n10. Buscar locacao \n11. Imprimir todas as locacoes\n12. Devolver DVD\n---------------------------"
-               "\n13. SelectionSort\n14. Arvore binaria de vencedores\n---------------------------\n0. Sair\n\nEscolha uma opcao: ");
+               "\n13. SelectionSort\n14. Arvore binaria de vencedores\n15. Tabela hash\n---------------------------\n0. Sair\n\nEscolha uma opcao: ");
         scanf("%d", &opcao);
         //fflush(arq);
 
@@ -222,7 +228,8 @@ int main() {
                 scanf("%d", &id_locacao);
 
 
-                locacao = buscaBinariaLocacao(id_locacao, arqLocadora, 0, tamanho_arquivo_locadora(arqLocadora),"locadora.txt");
+                locacao = buscaBinariaLocacao(id_locacao, arqLocadora, 0, tamanho_arquivo_locadora(arqLocadora),
+                                              "locadora.txt");
 
                 if (locacao != NULL) {
                     imprimeLocadora(locacao);
@@ -278,14 +285,79 @@ int main() {
 
                 qtd = 1;
 
+                //printf("\033[H\033[J");
                 qtd += selecaoNaturalCliente(arqClientes, tamanho_arquivo_cliente(arqClientes), logSelecaoCliente);
 
-                arvoreBinariaVencCliente(qtd, logArvoreVencCliente);
 
-                //printf("\033[H\033[J");
+                arvoreBinariaVencCliente(qtd, logArvoreVencCliente);
                 break;
             case 15:
-                break;
+                printf("\033[H\033[J");
+                int opcaoHash = -1;
+
+                TabelaHash *novaTabela = criarTabelaHash(TAM_CLIENTE, arqHash);
+
+                printf("\n********************** TABELA HASH ************************\n");
+
+                while (opcaoHash != 0) {
+                    printf("1. Inserir DVD\n2. Buscar DVD\n3. Excluir DVD\n4. Imprimir DVDs\n0. Sair\n\nEscolha uma opcao: ");
+                    scanf("%d", &opcaoHash);
+
+                    switch (opcaoHash) {
+                        case 1:
+                            printf("\n************************* INSERIR DVD HASH *******************************\n");
+
+                            dvd = (TDvd *) malloc(sizeof(TDvd));
+
+                            // Limpar o buffer, consumindo o caractere de nova linha remanescente
+                            while (getchar() != '\n');
+
+                            gerador_id_dvd++;
+                            dvd->id_dvd = TAM_DVD + gerador_id_dvd;
+
+                            printf("ID: %d", dvd->id_dvd);
+
+                            printf("\nTítulo: ");
+                            fgets(dvd->nome_dvd, 100, stdin);
+
+                            printf("Gênero: ");
+                            fgets(dvd->genero, 100, stdin);
+
+                            dvd->emprestimo = 0;
+
+                            inserirHashFile(novaTabela, *dvd, arqHash);
+
+                            opcao = -1;
+
+                            free(dvd);
+
+                            break;
+                        case 2:
+                            printf("\n**************************** BUSCAR DVD HASH ******************************\n");
+
+                            printf("Informe o id do dvd: ");
+                            scanf("%d", &id_dvd);
+
+                            buscarHashFile(novaTabela, id_dvd, arqHash);
+
+                            break;
+                        case 3:
+                            printf("\n**************************** EXCLUIR DVD HASH ****************************\n");
+                            printf("Informe o id do dvd: ");
+                            scanf("%d", &id_dvd);
+
+                            removerHashFile(novaTabela, id_dvd, arqHash);
+                            break;
+                        case 4:
+                            printf("\n********************** IMPRIMIR BASE DE DADOS DE DVDs HASH ************************\n");
+                            imprimirHashTable(novaTabela, arqHash);
+                            break;
+
+
+                    }
+
+                    break;
+                }
         }
     }
 }

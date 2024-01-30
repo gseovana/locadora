@@ -179,7 +179,7 @@ void criarBaseCliente(FILE *arq, int tam){
     shuffle(vet,tam,(tam*10)/100); // embaralhar
 
     for (int i=0;i<tam;i++){
-        cliente = criarCliente(vet[i], "Talia", "09/03/200", "153.221.326-35","(30)92325-4153");
+        cliente = criarCliente(vet[i], "Talia", "09/03/2001", "153.221.326-35","(30)92325-4153");
         salvarCliente(cliente, arq);
     }
 
@@ -384,7 +384,7 @@ void criarBaseLocadora(FILE *arqLocadora, FILE *arqCliente, FILE *arqDvd, int ta
     }
 
     free(locadora);
-    free(cliente);
+    //free(cliente);
     free(dvd);
 }
 
@@ -627,6 +627,50 @@ TLocadora *buscaBinariaLocacao(int chave, FILE *in, int inicio, int fim, const c
         return locadora;
     }
     else return NULL;
+}
+
+
+int partition(FILE *arq, int low, int high) {
+    // Escolhe o pivô como o último elemento
+    fseek(arq, high * tamanhoRegistroCliente(), SEEK_SET);
+    TCliente *pivot = lerCliente(arq);
+
+    int i = low - 1; // Índice do menor elemento
+
+    for (int j = low; j <= high - 1; j++) {
+        // Posiciona o arquivo no registro j
+        fseek(arq, j * tamanhoRegistroCliente(), SEEK_SET);
+        TCliente *current = lerCliente(arq);
+
+        // Se o elemento atual for menor ou igual ao pivô
+        if (current->idC <= pivot->idC) {
+            i++;
+
+            // Troca arr[i] e arr[j]
+            fseek(arq, i * tamanhoRegistroCliente(), SEEK_SET);
+            salvarCliente(current, arq);
+
+            fseek(arq, j * tamanhoRegistroCliente(), SEEK_SET);
+            salvarCliente(lerCliente(arq), arq);
+        }
+    }
+
+    // Troca arr[i + 1] e arr[high] (pivô)
+    fseek(arq, (i + 1) * tamanhoRegistroCliente(), SEEK_SET);
+    salvarCliente(pivot, arq);
+
+    return i + 1;
+}
+
+void quickSort(FILE *arq, int low, int high) {
+    if (low < high) {
+        // Encontra o índice do pivô, arranja os elementos ao redor do pivô
+        int pi = partition(arq, low, high);
+
+        // Recursivamente ordena as sub-arrays antes e depois do pivô
+        quickSort(arq, low, pi - 1);
+        quickSort(arq, pi + 1, high);
+    }
 }
 
 int excluiCliente(int chave, FILE *arquivoClientes) {
