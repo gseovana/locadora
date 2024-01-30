@@ -40,6 +40,16 @@ typedef struct{
     FILE *filePartitionc;
 }TClienteFile;
 
+typedef struct TDvdHash {
+    TDvd dvdHash;
+    struct TDvdHash* proximo;
+} TDvdHash;
+
+typedef struct TabelaHash {
+    int tamanho;
+    TDvdHash** tabelaHash;
+} TabelaHash;
+
 //int tamanho_registro();
 void shuffle(int *vet,int MAX,int MIN);
 int tamanho_arquivo_dvd(FILE *arq);
@@ -87,6 +97,7 @@ void imprimeLocadora(TLocadora *locadora);
 
 void criarBaseLocadora(FILE *arqLocadora, FILE *arqCliente, FILE *arqDvd, int tam);
 void imprimirBaseLocadora(FILE *arqLocadora);
+int quicksort(FILE *arq, int low, int high);
 
 TLocadora *buscaBinariaLocacao(int chave, FILE *in, int inicio, int fim, const char *nomeArquivoLog);
 

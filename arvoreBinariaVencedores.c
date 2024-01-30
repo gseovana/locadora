@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <time.h>
 
+//monta  arvore com nós pai e filhos e pega o vencedor
 void arvoreVencDvd(TDvd **dvd, FILE *arqD, int tam, int *arvoreAuxd) {
     int aux;
 
@@ -27,6 +28,7 @@ void arvoreVencDvd(TDvd **dvd, FILE *arqD, int tam, int *arvoreAuxd) {
         }
     }
 
+    //salva no arquivo de saida de arvore binaria (arquivao ordenado)
     salvarDvd(dvd[0], arqD);
     *arvoreAuxd +=1;
 }
@@ -44,9 +46,11 @@ void arvoreBinariaVencDvd(int qtdParticoes, FILE *logArvoreVencDvd){
 
     clock_gettime(CLOCK_MONOTONIC, &inicioTime);
 
+    //define o tamanho da arvore com base na quantidade e particoes
     if (qtdParticoes % 2 == 0){
         tam = 2 * qtdParticoes - 1;
-        auxQtdParticoes--;
+        auxQtdParticoes--;     //ajusta auxQtdParticioes p ser um valor menor se o numero de particoes for par
+
     }
     else {
         tam = 2 * qtdParticoes;
@@ -62,6 +66,7 @@ void arvoreBinariaVencDvd(int qtdParticoes, FILE *logArvoreVencDvd){
         dvdAux[i] = calloc(sizeof(TDvd), 1);
     }
 
+    //abre o arquivão
     FILE *arvoreBinariad = fopen("arvoreBinariad.dat", "wb+");
 
     for (int i = 0; i < qtdParticoes; i++){
@@ -75,10 +80,13 @@ void arvoreBinariaVencDvd(int qtdParticoes, FILE *logArvoreVencDvd){
         strcat(strcpy(nomeParticao, "selecaoNaturald"), nome1);
         strcat(strcpy(nomeParticao, nomeParticao), nome2);
 
+        //verifica a abertura
         auxArqd[i].filePartitiond = fopen(nomeParticao, "rb+");
         if (auxArqd[i].filePartitiond == NULL) {
             fprintf(stderr, "Erro ao abrir o arquivo %s. Motivo: %s\n", nomeParticao, strerror(errno));
         }
+
+        //posiciona no registro
         fseek(auxArqd[i].filePartitiond, 0 * sizeof(TDvd), SEEK_SET);
 
         if (aux+1 >= qtdParticoes){
@@ -88,13 +96,15 @@ void arvoreBinariaVencDvd(int qtdParticoes, FILE *logArvoreVencDvd){
         auxArqd[i].end_pd = 0;
     }
 
+    //chama a funcao p construir a arvore de vencedores
     arvoreVencDvd(dvdAux, arvoreBinariad, tam, &arvoreAuxd);
 
-    while (flagAuxFinal < qtdParticoes){
+    while (flagAuxFinal < qtdParticoes){ // loop para atualizar as particoes
         aux = tam - 1;
 
         for (int i = 0; i < qtdParticoes; i++){
 
+            //verifica se é o fim do arquivo
             if (fgetc(auxArqd[i].filePartitiond) == EOF && auxArqd[i].end_pd == 0 && menord->id_dvd == dvdAux[aux]->id_dvd){
                 flagAuxFinal++;
                 auxArqd[i].end_pd = 1;
@@ -151,6 +161,8 @@ void arvoreBinariaVencDvd(int qtdParticoes, FILE *logArvoreVencDvd){
     fclose(logArvoreVencDvd);
 
 }
+
+
 
 void arvoreVencCliente(TCliente **cliente, FILE *arqC, int tam, int *arvoreAux) {
     int aux;
@@ -269,9 +281,19 @@ void arvoreBinariaVencCliente(int qtdParticoes, FILE *logArvoreVencCliente){
                         fseek (auxArq[i].filePartitionc, auxArq[i].init_pc * sizeof(TCliente), SEEK_SET);
                         int newPos = ftell(auxArq[i].filePartitionc);
 
-                        free(clienteAux[aux]);
-                        clienteAux[aux] = lerCliente(auxArq[i].filePartitionc); //AQUI!!
-                        arvoreVencCliente(clienteAux, arvoreBinariac, tam, &arvoreAux);
+
+                        if(aux >= 0 && aux < tam) {
+                            //free(clienteAux[aux]);
+                            clienteAux[aux] = lerCliente(auxArq[i].filePartitionc);
+                            if(clienteAux[aux] == NULL){
+                                printf("CLIENTE NULO");
+                            }
+
+                            arvoreVencCliente(clienteAux, arvoreBinariac, tam, &arvoreAux);
+
+
+                        }
+
                     }
                 }
                 aux--;
@@ -287,10 +309,13 @@ void arvoreBinariaVencCliente(int qtdParticoes, FILE *logArvoreVencCliente){
         free(clienteAux[i]);
     }
 
+
     free(clienteAux);
     free(menor);
     free(auxArq);
     imprimirBaseCliente(arvoreBinariac);
+
+
     fclose(arvoreBinariac);
 
     clock_gettime(CLOCK_MONOTONIC, &fimTime);
@@ -301,3 +326,12 @@ void arvoreBinariaVencCliente(int qtdParticoes, FILE *logArvoreVencCliente){
     fclose(logArvoreVencCliente);
 
 }
+
+
+
+
+
+
+
+
+
