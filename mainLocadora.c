@@ -73,6 +73,7 @@ int main() {
 
     int gerador_id_locadora = 1,
             opcao = -1,
+            gerador_id_dvd_hash = 0,
             gerador_id_dvd = 0,
             gerador_id_cliente = 0, c;
 
@@ -312,8 +313,8 @@ int main() {
                             // Limpar o buffer, consumindo o caractere de nova linha remanescente
                             while (getchar() != '\n');
 
-                            gerador_id_dvd++;
-                            dvd->id_dvd = TAM_DVD + gerador_id_dvd;
+                            gerador_id_dvd_hash++;
+                            dvd->id_dvd = gerador_id_dvd_hash;
 
                             printf("ID: %d", dvd->id_dvd);
 
