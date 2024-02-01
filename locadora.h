@@ -41,7 +41,7 @@ typedef struct{
 }TClienteFile;
 
 typedef struct TDvdHash {
-    TDvd dvdHash;
+    TDvd dvdH;
     struct TDvdHash* proximo;
 } TDvdHash;
 

@@ -5,17 +5,27 @@
 #include "hash.h"
 
 TabelaHash* criarTabelaHash(int tamanho, FILE* file) {
+
+    //aloca memoria para uma nova tabela hash
+    //tabela hash é uma strcut que contem o amanho e uma outra struct que contem o dvd e um ponteiro para o prox
+
     TabelaHash* novaTabela = (TabelaHash*) malloc(sizeof(TabelaHash));
     novaTabela->tamanho = tamanho;
 
+    //aloca memoeria para o struct TDVdHash da tabelaHash
+    //essa tabela hash é como se fosse a "cabeça" da lista encadeade de aeds 1
     TDvdHash* noVazio = (TDvdHash*) malloc(sizeof(TDvdHash));
+
+    // inicializa os valores padrão
+    noVazio->dvdH.id_dvd = -1;
     noVazio->proximo = NULL;
 
-    rewind(file);
+    //salva no arquivo a quantidade de nós vazios referentes ao tamanho da tabelaHash
     for(int i=0; i<tamanho; i++) {
         fwrite(noVazio, sizeof(TDvdHash), 1, file);
     }
 
+    //libera noVazio e retorna a tabela
     free(noVazio);
     return novaTabela;
 }
@@ -25,44 +35,62 @@ int funcaoHash(int id, int tamanho) {
 }
 
 void inserirHashFile(TabelaHash* tabela, TDvd dvd, FILE* arquivo) {
+
+    //cria um novo struct TDvdHash
     TDvdHash* novoNoTDvdHash = (TDvdHash*) malloc(sizeof(TDvdHash));
-    novoNoTDvdHash->dvdHash = dvd;
+
+    //inicializa ele colocando o dvd que veio como parametro e o proximo como NULL(até pq n sabemos quem é o proximo)
+    novoNoTDvdHash->dvdH = dvd;
     novoNoTDvdHash->proximo = NULL;
 
+    //usa o index para saber onde salvar o novoNoTDvdHash
     int index = funcaoHash(dvd.id_dvd, tabela->tamanho);
 
+    //rebobina o arquivo
     rewind(arquivo);
 
+    //vai até a posicao do index e lê o que tem lá
     fseek(arquivo, index * sizeof(TDvdHash), SEEK_SET);
+
+    //cria um novo TDvdHash e lê o que tem na posicao do index
     TDvdHash* noAtual = (TDvdHash*) malloc(sizeof(TDvdHash));
     fread(noAtual, sizeof(TDvdHash), 1, arquivo);
 
+    //se o que tem na posicao do index é NULL, ou seja, não tem nada lá, ele escreve o novoNoTDvdHash
     if(noAtual == NULL) {
         fwrite(novoNoTDvdHash, sizeof(TDvdHash), 1, arquivo);
     } else {
+        //se não, ele vai até o final da lista encadeada e escreve o novoNoTDvdHash
         while(noAtual->proximo != NULL) {
             noAtual = noAtual->proximo;
         }
+        //insere o novoNoTDvdHash no final da lista encadeada
         noAtual->proximo = novoNoTDvdHash;
+
         fseek(arquivo, -sizeof(TDvdHash), SEEK_CUR);
         fwrite(noAtual, sizeof(TDvdHash), 1, arquivo);
     }
 }
 
 void buscarHashFile(TabelaHash* tabela, int id, FILE* arquivo) {
+
+    //usa o index para saber onde procurar o dvd
     int index = funcaoHash(id, tabela->tamanho);
 
+    //vai ate a posicao do index e lê o que têm lá
     fseek(arquivo, index * sizeof(TDvdHash), SEEK_SET);
     TDvdHash* noAtual = (TDvdHash*) malloc(sizeof(TDvdHash));
     fread(noAtual, sizeof(TDvdHash), 1, arquivo);
 
-    while(noAtual != NULL && noAtual->dvdHash.id_dvd != id) {
+    //enquanto o que tem na posicao do index é diferente de NULL e o id do dvd é diferente do id que estamos procurando
+    while(noAtual != NULL && noAtual->dvdH.id_dvd != id) {
         noAtual = noAtual->proximo;
     }
     if(noAtual == NULL) {
-        printf("Dvd não encontrado\n");
+        printf("Dvd não encontrado.\n");
     } else {
-        printf("Dvd encontrado: %s\n", noAtual->dvdHash.nome_dvd);
+        printf("Dvd encontrado!\n");
+        imprimeDvd(&noAtual->dvdH);
     }
 }
 
@@ -74,7 +102,7 @@ void removerHashFile(TabelaHash* tabela, int id, FILE* file) {
     fread(noAtual, sizeof(TDvdHash), 1, file);
 
     TDvdHash* noAnterior = NULL;
-    while(noAtual != NULL && noAtual->dvdHash.id_dvd != id) {
+    while(noAtual != NULL && noAtual->dvdH.id_dvd != id) {
         noAnterior = noAtual;
         noAtual = noAtual->proximo;
     }
@@ -108,16 +136,18 @@ when you try to access it.  Remember that when you read from the file with fread
 
 void imprimirHashTable(TabelaHash* tabela, FILE* file) {
     TDvdHash* noAtual = (TDvdHash*) malloc(sizeof(TDvdHash));
+    //noAtual->dvdHash = dvd; // Initialize the TDvdHash object
+    noAtual->proximo = NULL; // Initialize the proximo field
 
     for(int i=0; i<tabela->tamanho; i++) {
         fseek(file, i * sizeof(TDvdHash), SEEK_SET);
         fread(noAtual, sizeof(TDvdHash), 1, file);
 
-        while(noAtual->dvdHash.id_dvd != -1) {
-            printf("ID: %d\n", noAtual->dvdHash.id_dvd);
-            printf("Titulo: %s\n", noAtual->dvdHash.nome_dvd);
-            printf("Genero: %s\n", noAtual->dvdHash.genero);
-            printf("Emprestimo: %d\n", noAtual->dvdHash.emprestimo);
+        while(noAtual->dvdH.id_dvd != NULL) {
+            printf("ID: %d\n", noAtual->dvdH.id_dvd);
+            printf("Titulo: %s\n", noAtual->dvdH.nome_dvd);
+            printf("Genero: %s\n", noAtual->dvdH.genero);
+            printf("Emprestimo: %d\n", noAtual->dvdH.emprestimo);
             printf("--------------------\n");
 
             if(noAtual->proximo != -1) {
