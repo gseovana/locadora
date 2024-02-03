@@ -328,7 +328,7 @@ int main() {
 
                             inserirHashFile(novaTabela, *dvd, arqHash);
 
-                            opcao = -1;
+                            opcaoHash = -1;
 
                             free(dvd);
 
@@ -341,6 +341,8 @@ int main() {
 
                             buscarHashFile(novaTabela, id_dvd, arqHash);
 
+                            opcaoHash = -1;
+
                             break;
                         case 3:
                             printf("\n**************************** EXCLUIR DVD HASH ****************************\n");
@@ -348,12 +350,17 @@ int main() {
                             scanf("%d", &id_dvd);
 
                             removerHashFile(novaTabela, id_dvd, arqHash);
+
+                            opcaoHash = -1;
+
                             break;
                         case 4:
                             printf("\n********************** IMPRIMIR BASE DE DADOS DE DVDs HASH ************************\n");
-                            imprimirHashTable(novaTabela, arqHash);
-                            break;
+                            //imprimirHashTable(novaTabela, arqHash);
 
+                            opcaoHash = -1;
+
+                            break;
 
                     }
 

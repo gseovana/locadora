@@ -42,12 +42,11 @@ typedef struct{
 
 typedef struct TDvdHash {
     TDvd dvdH;
-    struct TDvdHash* proximo;
+    int proximoIndex;
 } TDvdHash;
 
 typedef struct TabelaHash {
     int tamanho;
-    TDvdHash** tabelaHash;
 } TabelaHash;
 
 //int tamanho_registro();
