@@ -154,7 +154,7 @@ TCliente *buscaSequencialCliente(int chave, FILE *arq, const char *nomeArquivoLo
 
 
 void imprimeCliente(TCliente *cliente){
-    printf("\n*********** CLIENTE ***********");
+    printf("\n***** CLIENTE *****");
     printf("\nID: ");
     printf("%d", cliente->idC);
     printf("\nNome: ");
@@ -235,7 +235,7 @@ TDvd *lerDvd(FILE *arq){
 }
 
 void imprimeDvd(TDvd *dvd){
-    printf("\n************** DVD ***************");
+    printf("\n****** DVD *****");
     printf("\nID: ");
     printf("%d", dvd->id_dvd);
     printf("\nNome: ");
@@ -354,7 +354,7 @@ TLocadora *lerRegistrosLocadora(FILE *arqLocadora){
 }
 
 void imprimeLocadora(TLocadora *locadora){
-    printf("**************** LOCADORA *****************");
+    printf("****** LOCADORA *******");
     printf("\nID locacao: ");
     printf("%d", locadora->id_locacao);
 
@@ -465,7 +465,7 @@ void alugaDvd(int gerador_id_locadora, FILE *arqClientes, FILE *arqDvds, FILE *a
 
         printf("\nDvd alugado com sucesso!\n");
 
-        printf("\n***************************\n");
+        printf("\n***********\n");
         printf("1 - Alugar outro filme\n0 - Sair ");
         printf("\nEscolha uma opcao: ");
         scanf("%d", &res);
@@ -484,7 +484,7 @@ void imprimirDvdAlugado(FILE *arq, FILE *arqD, FILE *arqC){
     TCliente *cliente;
 
     while ((locadora = lerRegistrosLocadora(arq)) != NULL){
-        printf("\n******************** DVDs ALUGADOS *********************");
+        printf("\n******** DVDs ALUGADOS *******");
         dvd = buscaSequencialDvds(locadora->dvdL.id_dvd, arqD, "buscaDvds-log.txt");
 
         if(dvd->id_dvd != 0)
@@ -719,28 +719,28 @@ void devolverDvd(FILE *arqDvdss) {
     int idDvd;
     struct dvd_est *dvd;
 
-        printf("\n");
+    printf("\n");
 
-        printf("---------------------------------------------------------\n");
-        printf("Informe o ID do DVD: ");
-        scanf("%d", &idDvd);
+    printf("---------------------------------------------------------\n");
+    printf("Informe o ID do DVD: ");
+    scanf("%d", &idDvd);
 
-        dvd = buscaSequencialDvds(idDvd, arqDvdss, "buscaDvds-log.txt");
+    dvd = buscaSequencialDvds(idDvd, arqDvdss, "buscaDvds-log.txt");
 
-        if(dvd == NULL){
-            printf("Dvd nao encontrado");
-        }
+    if(dvd == NULL){
+        printf("Dvd nao encontrado");
+    }
 
-        if(dvd->emprestimo == 1) {
-            dvd->emprestimo = 0;
-            fseek(arqDvdss, -sizeof(TDvd), SEEK_CUR);
-            salvarDvd(dvd, arqDvdss);
+    if(dvd->emprestimo == 1) {
+        dvd->emprestimo = 0;
+        fseek(arqDvdss, -sizeof(TDvd), SEEK_CUR);
+        salvarDvd(dvd, arqDvdss);
 
-            printf("\nDvd devolvido com sucesso!\n");
-        }else{
-            if(dvd->emprestimo == 0)
-                printf("Esse dvd nao estava alugado.");
-        }
+        printf("\nDvd devolvido com sucesso!\n");
+    }else{
+        if(dvd->emprestimo == 0)
+            printf("Esse dvd nao estava alugado.");
+    }
 }
 
 
@@ -818,4 +818,3 @@ void gerarParticoesOrdenadasDvd(FILE *arquivoEntrada, int tamanho, int tam_reser
         fclose(arquivoSaida);
     }
 }
-

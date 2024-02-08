@@ -11,7 +11,7 @@
 #define TAM_LOCADORA 4
 int main() {
 
-    FILE *arqClientes, *arqDvds, *arqLocadora, *arqHash, *logFileDvd, *logFileCliente, *logSelecaoDvd, *logSelecaoCliente, *logArvoreVencDvd, *logArvoreVencCliente;
+    FILE *arqClientes, *arqDvds, *arqLocadora, *arqHash, *logFileDvd, *logFileCliente, *logSelecaoDvd, *logSelecaoCliente, *logArvoreVencDvd, *logArvoreVencCliente, *logHash, *logHashInserir, *logHashBuscar, *logHashRemover, *logHashImprimir ;
     TCliente *cliente;
     TDvd *dvd;
     TLocadora *locacao;
@@ -67,16 +67,43 @@ int main() {
         exit(1);
     }
 
+    if ((logHash = fopen("logHash.txt", "w")) == NULL) {
+        printf("Erro ao abrir arquivo\n");
+        exit(1);
+    }
+
+    if ((logHashInserir = fopen("logHashInserir.txt", "w")) == NULL) {
+        printf("Erro ao abrir arquivo\n");
+        exit(1);
+    }
+
+    if ((logHashBuscar = fopen("logHashBuscar.txt", "w")) == NULL) {
+        printf("Erro ao abrir arquivo\n");
+        exit(1);
+    }
+
+    if ((logHashRemover = fopen("logHashRemover.txt", "w")) == NULL) {
+        printf("Erro ao abrir arquivo\n");
+        exit(1);
+    }
+
+    if ((logHashImprimir = fopen("logHashImprimir.txt", "w")) == NULL) {
+        printf("Erro ao abrir arquivo\n");
+        exit(1);
+    }
+
+
     criarBaseDvd(arqDvds, TAM_DVD);
     criarBaseCliente(arqClientes, TAM_CLIENTE);
     criarBaseLocadora(arqLocadora, arqClientes, arqDvds, TAM_LOCADORA);
 
     int gerador_id_locadora = 1,
             opcao = -1,
-            gerador_id_dvd_hash = 0,
+            //gerador_id_dvd_hash = 0,
             gerador_id_dvd = 0,
             gerador_id_cliente = 0, c;
 
+    TabelaHash *novaTabela = criarTabelaHash(TAM_CLIENTE, arqHash, logHash);
 
     while (opcao != 0) {
         system("clear");
@@ -296,8 +323,6 @@ int main() {
                 printf("\033[H\033[J");
                 int opcaoHash = -1;
 
-                TabelaHash *novaTabela = criarTabelaHash(TAM_CLIENTE, arqHash);
-
                 printf("\n********************** TABELA HASH ************************\n");
 
                 while (opcaoHash != 0) {
@@ -306,18 +331,17 @@ int main() {
 
                     switch (opcaoHash) {
                         case 1:
-                            printf("\n************************* INSERIR DVD HASH *******************************\n");
+                            printf("\n********* INSERIR DVD HASH ***********\n");
 
                             dvd = (TDvd *) malloc(sizeof(TDvd));
 
                             // Limpar o buffer, consumindo o caractere de nova linha remanescente
+
+
+                            printf("ID: ");
+                            scanf("%d", &dvd->id_dvd);
+
                             while (getchar() != '\n');
-
-                            gerador_id_dvd_hash++;
-                            dvd->id_dvd = gerador_id_dvd_hash;
-
-                            printf("ID: %d", dvd->id_dvd);
-
                             printf("\nTítulo: ");
                             fgets(dvd->nome_dvd, 100, stdin);
 
@@ -326,11 +350,10 @@ int main() {
 
                             dvd->emprestimo = 0;
 
-                            inserirHashFile(novaTabela, *dvd, arqHash);
-
+                            inserirHashFile(novaTabela, *dvd, arqHash, logHashInserir);
+                            free(dvd);
                             opcaoHash = -1;
 
-                            free(dvd);
 
                             break;
                         case 2:
@@ -339,7 +362,7 @@ int main() {
                             printf("Informe o id do dvd: ");
                             scanf("%d", &id_dvd);
 
-                            buscarHashFile(novaTabela, id_dvd, arqHash);
+                            buscarHashFile(novaTabela, id_dvd, arqHash, logHashBuscar);
 
                             opcaoHash = -1;
 
@@ -349,14 +372,14 @@ int main() {
                             printf("Informe o id do dvd: ");
                             scanf("%d", &id_dvd);
 
-                            removerHashFile(novaTabela, id_dvd, arqHash);
+                            removerHashFile(novaTabela, id_dvd, arqHash, logHashRemover);
 
                             opcaoHash = -1;
 
                             break;
                         case 4:
                             printf("\n********************** IMPRIMIR BASE DE DADOS DE DVDs HASH ************************\n");
-                            //imprimirHashTable(novaTabela, arqHash);
+                            imprimirTabelaHash(novaTabela, arqHash, logHashImprimir);
 
                             opcaoHash = -1;
 
